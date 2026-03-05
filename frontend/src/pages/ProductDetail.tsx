@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { PRODUCTS } from '../constants';
+import { PRODUCT_CATEGORIES, PRODUCTS } from '../constants';
 import { SectionHeader } from '../components/UI';
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 
@@ -31,7 +31,10 @@ export const ProductDetail = () => {
   }
 
   const isDocxImage = product.image.startsWith('/assets/docx/');
-  const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3);
+  const category = PRODUCT_CATEGORIES.find((c) => c.productIds.includes(product.id));
+  const related = category
+    ? PRODUCTS.filter((p) => category.productIds.includes(p.id) && p.id !== product.id).slice(0, 3)
+    : PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3);
 
   return (
     <div className="pt-24 min-h-screen bg-slate-50">
@@ -111,7 +114,7 @@ export const ProductDetail = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeader
               title="Related Products"
-              subtitle={`More from ${product.category}`}
+              subtitle={category ? `More from ${category.title}` : `More from ${product.category}`}
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {related.map((item) => (

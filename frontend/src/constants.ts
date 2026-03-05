@@ -207,3 +207,41 @@ export const PARTNERS: Partner[] = [
   { name: 'ESET', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/ESET_logo.svg' },
   { name: 'Norton', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e3/Norton_LifeLock_logo.svg' }
 ];
+
+export const PRODUCT_CATEGORIES = [
+  {
+    slug: 'paper-products',
+    title: 'Paper Products',
+    description: 'Thermal rolls and carbonless paper solutions for retail, logistics, and healthcare.',
+    image: '/assets/docx/image1.png',
+    productIds: ['p1', 'p3', 'p5']
+  },
+  {
+    slug: 'thermal-labels',
+    title: 'Thermal Labels',
+    description: 'Durable, high-adhesion labels for shipping, inventory, and retail applications.',
+    image: '/assets/docx/image3.png',
+    productIds: ['p2']
+  },
+  {
+    slug: 'pos-printers',
+    title: 'POS Printers',
+    description: 'Reliable POS and label printers from leading global brands.',
+    image: '/assets/docx/image9.png',
+    productIds: ['p4']
+  },
+  {
+    slug: 'medical-supplies',
+    title: 'Medical Supplies',
+    description: 'Patient ID wristbands, PPE clothing, and essential hospital consumables.',
+    image: '/assets/docx/image11.png',
+    productIds: ['m1', 'm2', 'm3', 'm4']
+  },
+  {
+    slug: 'packaging-materials',
+    title: 'Packaging Materials',
+    description: 'Industrial strapping systems, tools, stretch films, and adhesive tapes.',
+    image: '/assets/docx/image29.jpeg',
+    productIds: ['pk1', 'pk2', 'pk3', 'pk4']
+  }
+];

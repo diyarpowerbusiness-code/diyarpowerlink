@@ -63,6 +63,42 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   );
 };
 
+export const CatalogProductCard: React.FC<{ product: Product }> = ({ product }) => {
+  const isDocxImage = product.image.startsWith('/assets/docx/');
+
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
+      <div className={`aspect-[4/3] overflow-hidden ${isDocxImage ? 'bg-white' : ''}`}>
+        <img
+          src={product.image}
+          alt={product.name}
+          className={`w-full h-full ${isDocxImage ? 'object-cover object-top scale-105' : 'object-cover'}`}
+          loading="lazy"
+          referrerPolicy="no-referrer"
+        />
+      </div>
+      <div className="p-6 flex flex-col flex-grow">
+        <h3 className="text-lg font-display font-bold text-primary mb-2">{product.name}</h3>
+        <p className="text-sm text-slate-600 mb-6 flex-grow">{product.description}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Link
+            to={`/products/${product.id}`}
+            className="py-2.5 rounded-lg text-sm font-semibold text-primary border border-slate-200 hover:bg-slate-50 transition-colors text-center"
+          >
+            Learn More
+          </Link>
+          <Link
+            to="/contact"
+            className="py-2.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors text-center"
+          >
+            Request Quote
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
   const IconComponent = (Icons as any)[service.icon] || Icons.HelpCircle;
 
