@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Phone, Mail } from 'lucide-react';
+import { Menu, X, Phone, Mail, ChevronDown } from 'lucide-react';
 import { COMPANY_NAME } from '../constants';
 
 export const Navbar = () => {
@@ -16,48 +16,104 @@ export const Navbar = () => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'About Us', path: '/about' },
-    { name: 'Products', path: '/products' },
+    { name: 'About', path: '/about' },
     { name: 'Services', path: '/services' },
     { name: 'Contact', path: '/contact' },
   ];
 
   const isHomePage = location.pathname === '/';
   const isDarkHero = isHomePage && !scrolled;
+  const [productsOpen, setProductsOpen] = useState(false);
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur border-b border-slate-200 py-4 shadow-sm' : 'bg-slate-900/30 backdrop-blur py-5'}`}>
+    <nav className={`sticky top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur border-b border-slate-200 py-3 shadow-sm' : 'bg-white/95 backdrop-blur border-b border-slate-200 py-4 shadow-sm'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-11 h-11 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/20">
               <span className="text-white font-bold text-xl">D</span>
             </div>
-            <span className={`font-display font-bold text-2xl tracking-tight transition-colors ${isDarkHero ? 'text-white' : 'text-slate-900'}`}>
+            <span className="font-display font-bold text-2xl tracking-tight text-slate-900">
               {COMPANY_NAME}
             </span>
           </Link>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`text-base font-semibold transition-colors hover:text-blue-500 ${
-                  location.pathname === link.path 
-                    ? 'text-blue-500' 
-                    : isDarkHero ? 'text-slate-200' : 'text-slate-600'
+            <Link
+              to="/"
+              className={`text-base font-semibold transition-colors hover:text-blue-600 ${
+                location.pathname === '/' ? 'text-blue-600' : 'text-slate-600'
+              }`}
+            >
+              Home
+            </Link>
+            <Link
+              to="/about"
+              className={`text-base font-semibold transition-colors hover:text-blue-600 ${
+                location.pathname === '/about' ? 'text-blue-600' : 'text-slate-600'
+              }`}
+            >
+              About
+            </Link>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setProductsOpen((v) => !v)}
+                className={`text-base font-semibold transition-colors hover:text-blue-600 flex items-center gap-1 ${
+                  location.pathname.startsWith('/products') ? 'text-blue-600' : 'text-slate-600'
                 }`}
               >
-                {link.name}
-              </Link>
-            ))}
+                Products
+                <ChevronDown size={16} />
+              </button>
+              {productsOpen && (
+                <div className="absolute left-0 mt-3 w-56 bg-white border border-slate-100 rounded-2xl shadow-lg p-2">
+                  <Link
+                    to="/products"
+                    onClick={() => setProductsOpen(false)}
+                    className="block px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-slate-50 rounded-lg"
+                  >
+                    All Products
+                  </Link>
+                  {[
+                    { name: 'IT Solutions', path: '/products/category/it-solutions' },
+                    { name: 'Paper Products', path: '/products/category/paper-products' },
+                    { name: 'Thermal Labels', path: '/products/category/thermal-labels' },
+                    { name: 'Medical Supplies', path: '/products/category/medical-supplies' },
+                    { name: 'Packaging Materials', path: '/products/category/packaging-materials' }
+                  ].map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      onClick={() => setProductsOpen(false)}
+                      className="block px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-lg"
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Link
+              to="/services"
+              className={`text-base font-semibold transition-colors hover:text-blue-600 ${
+                location.pathname === '/services' ? 'text-blue-600' : 'text-slate-600'
+              }`}
+            >
+              Services
+            </Link>
             <Link
               to="/contact"
-              className={`px-6 py-3 rounded-full text-sm font-semibold transition-all shadow-md ${
-                scrolled ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-600 text-white hover:bg-blue-700'
+              className={`text-base font-semibold transition-colors hover:text-blue-600 ${
+                location.pathname === '/contact' ? 'text-blue-600' : 'text-slate-600'
               }`}
+            >
+              Contact
+            </Link>
+            <Link
+              to="/contact"
+              className="px-6 py-3 rounded-full text-sm font-semibold transition-all shadow-md bg-blue-600 text-white hover:bg-blue-700"
             >
               Get a Quote
             </Link>
@@ -67,7 +123,7 @@ export const Navbar = () => {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className={`transition-colors ${isDarkHero ? 'text-white' : 'text-slate-600'}`}
+              className="transition-colors text-slate-700"
             >
               {isOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
@@ -91,11 +147,32 @@ export const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            <div className="px-3 pt-3">
+              <p className="text-xs font-semibold text-slate-500 mb-2">Products</p>
+              <div className="grid grid-cols-1 gap-1">
+                {[
+                  { name: 'IT Solutions', path: '/products/category/it-solutions' },
+                  { name: 'Paper Products', path: '/products/category/paper-products' },
+                  { name: 'Thermal Labels', path: '/products/category/thermal-labels' },
+                  { name: 'Medical Supplies', path: '/products/category/medical-supplies' },
+                  { name: 'Packaging Materials', path: '/products/category/packaging-materials' }
+                ].map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    onClick={() => setIsOpen(false)}
+                    className="block px-3 py-3 text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-50 rounded-lg"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
             <div className="pt-4 px-3">
               <Link
                 to="/contact"
                 onClick={() => setIsOpen(false)}
-                className="block w-full text-center bg-primary text-white py-3 rounded-xl font-medium"
+                className="block w-full text-center bg-blue-600 text-white py-3 rounded-xl font-medium"
               >
                 Get a Quote
               </Link>
@@ -143,11 +220,11 @@ export const Footer = () => {
           <div>
             <h4 className="font-display font-semibold text-lg mb-6">Our Divisions</h4>
             <ul className="space-y-4 text-sm text-slate-400">
-              <li>IT Hardware & Software</li>
-              <li>Thermal Paper Rolls</li>
-              <li>Medical ID Wristbands</li>
-              <li>Packaging Solutions</li>
-              <li>Technical Services</li>
+              <li>IT Solutions & Infrastructure</li>
+              <li>Paper Products & Thermal Rolls</li>
+              <li>Medical Supplies & Wristbands</li>
+              <li>Packaging Materials & Tools</li>
+              <li>Technical Services & Support</li>
             </ul>
           </div>
 
@@ -156,15 +233,22 @@ export const Footer = () => {
             <ul className="space-y-4 text-sm text-slate-400">
               <li className="flex items-start space-x-3">
                 <span className="mt-1">📍</span>
-                <span>Building 10-6-87/2, Street Rural Police Station, Srinivasa Colony, Mahabubnagar – 509001, Telangana, India</span>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Building%2010-6-87%2F2%2C%20Street%20Rural%20Police%20Station%2C%20Srinivasa%20Colony%2C%20Mahabubnagar%20509001%2C%20Telangana%2C%20India"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  Building 10-6-87/2, Street Rural Police Station, Srinivasa Colony, Mahabubnagar – 509001, Telangana, India
+                </a>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone size={16} />
-                <span>+91 8688050498</span>
+                <a href="tel:+918688050498" className="hover:text-white transition-colors">+91 8688050498</a>
               </li>
               <li className="flex items-center space-x-3">
                 <Mail size={16} />
-                <span>info@diyarpowerlink.com</span>
+                <a href="mailto:info@diyarpowerlink.com" className="hover:text-white transition-colors">info@diyarpowerlink.com</a>
               </li>
             </ul>
           </div>

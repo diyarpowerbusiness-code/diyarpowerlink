@@ -2,13 +2,17 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, CheckCircle2, ShieldCheck, Truck, Clock, Award } from 'lucide-react';
 import * as Icons from 'lucide-react';
-import { SectionHeader, ProductCard, ServiceCard } from '../components/UI';
-import { PRODUCTS, SERVICES, PARTNERS, COMPANY_NAME } from '../constants';
+import { SectionHeader, ServiceCard } from '../components/UI';
+import { PARTNERS } from '../constants';
 import { Link } from 'react-router-dom';
 
 export const Home = () => {
-  const featuredProducts = PRODUCTS.filter(p => ['it1', 'p1', 'm1', 'pk1', 'it3', 'p2'].includes(p.id));
-  const featuredServices = SERVICES.slice(0, 4);
+  const featuredServices = [
+    { title: 'IT Consultancy', description: 'Strategic guidance to align technology with business objectives.', icon: 'Lightbulb' },
+    { title: 'Hardware Installation', description: 'Professional setup for desktops, servers, and peripherals.', icon: 'Wrench' },
+    { title: 'Network Solutions', description: 'LAN, fiber, routing, and secure network infrastructure.', icon: 'Network' },
+    { title: 'Technical Support', description: 'Responsive onsite and remote support to minimize downtime.', icon: 'Headphones' }
+  ];
 
   return (
     <div className="overflow-hidden">
@@ -29,16 +33,19 @@ export const Home = () => {
               <span className="inline-block px-4 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-sm font-semibold mb-6">
                 Diyar Power Link LLP
               </span>
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-white leading-[1.1] mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-white leading-[1.1] mb-4">
               One Shop for<br /><span className="text-blue-500">All IT Needs</span>
             </h1>
+            <p className="text-lg sm:text-xl text-blue-200 font-semibold mb-4">
+              Your Trusted Technology Partner
+            </p>
             <p className="text-base sm:text-lg md:text-xl text-slate-300 mb-10 leading-relaxed max-w-2xl mx-auto">
-              Your Trusted Technology Partner. Diyar Computers specializes in IT-related items and network solutions.
-              We deliver the highest quality brands, competitive pricing, and guaranteed on-time delivery across India.
+              Diyar Power Link LLP is a multi-vertical trading and technology solutions provider delivering
+              reliable supply, competitive pricing, and professional support across industries.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mb-10 justify-center">
               <Link to="/products" className="bg-blue-600 text-white px-8 py-4 rounded-full font-semibold flex items-center justify-center hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 group">
-                Explore Products
+                View Products
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
               </Link>
                 <Link to="/contact" className="bg-white/5 text-white border border-white/20 px-8 py-4 rounded-full font-semibold hover:bg-white/10 transition-all flex items-center justify-center backdrop-blur-sm">
@@ -129,31 +136,52 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* Business Divisions */}
-      <section className="py-24 bg-slate-50 bg-grid">
+      {/* Business Areas */}
+      <section className="py-20 bg-slate-50 bg-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="Our Business Divisions"
-            subtitle="Operating across diverse industries with specialized products and technical expertise."
+            title="Business Areas"
+            subtitle="Focused expertise across our core B2B sectors."
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
             {[
-              { title: 'IT & Technology', desc: 'Hardware, software, networking solutions and IT consultancy for modern enterprises.', icon: 'Laptop', color: 'bg-blue-600', link: '/products' },
-              { title: 'Paper Products', desc: 'Thermal rolls, labels, carbonless paper and POS printers for all industries.', icon: 'FileText', color: 'bg-emerald-600', link: '/products' },
-              { title: 'Medical Supplies', desc: 'Patient ID wristbands, PPE clothing and hospital consumables for healthcare.', icon: 'Activity', color: 'bg-rose-600', link: '/products' },
-              { title: 'Packaging Solutions', desc: 'Heavy-duty strapping, stretch film, strapping tools and adhesive tapes.', icon: 'Package', color: 'bg-amber-600', link: '/products' }
+              {
+                title: 'IT Solutions',
+                desc: 'Hardware, software, and networking solutions for enterprises.',
+                image: '/assets/docx/it solution.png',
+                link: '/products/category/it-solutions'
+              },
+              {
+                title: 'Paper Products',
+                desc: 'Thermal rolls, labels, and carbonless paper solutions.',
+                image: '/assets/docx/paper products.png',
+                link: '/products/category/paper-products'
+              },
+              {
+                title: 'Medical Supplies',
+                desc: 'Patient wristbands, PPE clothing, and hospital consumables.',
+                image: '/assets/docx/medical.png',
+                link: '/products/category/medical-supplies'
+              },
+              {
+                title: 'Packaging Materials',
+                desc: 'Strapping, stretch film, tools, and adhesive tapes.',
+                image: '/assets/docx/image29.jpeg',
+                link: '/products/category/packaging-materials'
+              }
             ].map((sector, i) => {
-              const Icon = (Icons as any)[sector.icon];
               return (
-                <div key={i} className="p-8 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group">
-                  <div className={`w-14 h-14 ${sector.color} rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
-                    <Icon size={28} />
+                <div key={i} className="rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
+                  <div className="aspect-[16/9] overflow-hidden bg-white">
+                    <img src={sector.image} alt={sector.title} className="w-full h-full object-cover object-center" loading="lazy" />
                   </div>
-                  <h3 className="text-xl font-bold text-primary mb-3">{sector.title}</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed mb-6">{sector.desc}</p>
-                  <Link to={sector.link} className="text-blue-600 text-sm font-semibold flex items-center group-hover:translate-x-1 transition-transform">
-                    View Products <ArrowRight size={16} className="ml-1" />
-                  </Link>
+                  <div className="p-8 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-primary mb-3">{sector.title}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">{sector.desc}</p>
+                    <Link to={sector.link} className="inline-flex items-center justify-center bg-blue-600 text-white px-5 py-2.5 rounded-full font-semibold hover:bg-blue-700 transition-all">
+                      View Products
+                    </Link>
+                  </div>
                 </div>
               );
             })}
@@ -161,37 +189,16 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Featured Products"
-            subtitle="Explore our wide range of high-quality products across multiple categories."
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">
-            {featuredProducts.slice(0, 3).map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-          <div className="mt-16 text-center">
-            <Link to="/products" className="inline-flex items-center bg-primary text-white px-8 py-4 rounded-full font-semibold hover:bg-slate-800 transition-all">
-              View All Products
-              <ArrowRight className="ml-2" size={20} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* Services Overview */}
-      <section className="py-24 bg-slate-50 bg-grid">
+      <section className="py-20 bg-slate-50 bg-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="Unlocking the Power of Our Services"
-            subtitle="We provide comprehensive IT solutions tailored to your business needs, from hardware supply to technical support."
+            title="Services"
+            subtitle="Professional support designed for enterprise reliability."
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-4">
             {featuredServices.map((service) => (
-              <ServiceCard key={service.id} service={service} />
+              <ServiceCard key={service.title} service={service as any} />
             ))}
           </div>
           <div className="mt-12 text-center">
@@ -205,90 +212,59 @@ export const Home = () => {
       {/* Why Choose Us */}
       <section className="py-24 bg-primary text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <SectionHeader
-                title="Why Choose Diyar?"
-                subtitle="We deliver the best in everything from IT to customer services, with a global perspective and a passion to innovate."
-                centered={false}
-                light={true}
-              />
-              <div className="space-y-8 mt-12">
-                {[
-                  { icon: ShieldCheck, title: 'Genuine Warranties', desc: 'All our products are backed by genuine warranties with quick recovery from any component failure.' },
-                  { icon: Truck, title: 'Guaranteed Delivery', desc: 'We guarantee our deliveries on the back of our proven track record and logistics expertise.' },
-                  { icon: Award, title: 'Quality Products', desc: 'Genuine best quality items sourced directly from manufacturers keeping pace with innovation.' },
-                  { icon: Clock, title: 'Quick Support', desc: 'Our technicians resolve any reported hardware and software issues quickly and efficiently.' }
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <item.icon className="text-blue-400" size={24} />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold mb-1">{item.title}</h4>
-                      <p className="text-slate-400 text-sm">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-white/5 p-1 rounded-3xl border border-white/10">
-              <img
-                src="https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&q=80"
-                alt="Support Team"
-                className="rounded-3xl w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Partners */}
-      <section className="py-24 bg-white border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            title="Our Technology Partners"
-            subtitle="We are proud to partner with world-renowned technology brands to deliver the best solutions to our clients."
+            title="Why Choose Us"
+            subtitle="Consistent quality and delivery backed by technical expertise."
+            light={true}
           />
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { name: 'Microsoft', color: 'bg-[#F25022]', text: 'MS' },
-              { name: 'Adobe', color: 'bg-[#FF0000]', text: 'Ae' },
-              { name: 'Autodesk', color: 'bg-[#0696D7]', text: 'Au' },
-              { name: 'Kaspersky', color: 'bg-[#006D5B]', text: 'KL' },
-              { name: 'ESET', color: 'bg-[#1A9E3F]', text: 'ES' },
-              { name: 'Norton', color: 'bg-[#FDB714]', text: 'No' },
-            ].map((partner) => (
-              <div
-                key={partner.name}
-                className="flex flex-col items-center justify-center p-5 rounded-2xl border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all duration-300 group cursor-default"
-              >
-                <div className={`w-14 h-14 ${partner.color} rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm`}>
-                  <span className="text-white font-bold text-lg">{partner.text}</span>
+              { icon: Award, title: 'Quality Products', desc: 'Sourced from trusted manufacturers with genuine warranties.' },
+              { icon: Truck, title: 'Reliable Supply', desc: 'On-time delivery supported by proven logistics.' },
+              { icon: ShieldCheck, title: 'Competitive Pricing', desc: 'Cost-effective solutions across product categories.' },
+              { icon: Clock, title: 'Technical Expertise', desc: 'Experienced team for installation, support, and guidance.' }
+            ].map((item, i) => (
+              <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center mb-4">
+                  <item.icon className="text-blue-400" size={22} />
                 </div>
-                <span className="text-sm font-semibold text-slate-700 group-hover:text-primary transition-colors">{partner.name}</span>
+                <h4 className="text-lg font-bold mb-2">{item.title}</h4>
+                <p className="text-slate-300 text-sm">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 bg-blue-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-6">
-            Ready to Grow Your Business?
-          </h2>
-          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-            Get in touch with our experts today for a customized solution that fits your specific needs.
-          </p>
-          <Link to="/contact" className="inline-flex items-center bg-white text-blue-600 px-10 py-4 rounded-full font-bold text-lg hover:bg-slate-100 transition-all shadow-xl">
-            Get in Touch
-            <ArrowRight className="ml-2" size={24} />
-          </Link>
+      {/* Partners */}
+      <section className="py-20 bg-white border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Our Technology Partners"
+            subtitle="We are proud to partner with world-renowned technology brands to deliver the best solutions to our clients."
+          />
+          <div className="bg-slate-50 border border-slate-100 rounded-3xl p-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 items-center">
+              {PARTNERS.map((partner) => (
+                <a
+                  key={partner.name}
+                  href={partner.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group bg-white border border-slate-100 rounded-2xl h-24 flex items-center justify-center shadow-sm hover:shadow-md hover:border-blue-200 transition-all"
+                >
+                  <img
+                    src={partner.logo}
+                    alt={partner.name}
+                    className={`object-contain grayscale group-hover:grayscale-0 transition-all ${partner.name === 'Autodesk' ? 'h-16 w-40' : 'h-10 w-28'}`}
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
+
     </div>
   );
 };

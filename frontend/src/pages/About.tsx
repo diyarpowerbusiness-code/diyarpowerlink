@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { motion } from 'motion/react';
 import { SectionHeader } from '../components/UI';
 import { COMPANY_NAME } from '../constants';
@@ -52,18 +52,13 @@ export const About = () => {
                 ))}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-3xl overflow-hidden shadow-2xl">
               <img
                 src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80"
-                alt="Office"
-                className="rounded-2xl w-full h-56 object-cover"
+                alt="Our Office"
+                className="w-full h-[420px] object-cover"
                 referrerPolicy="no-referrer"
-              />
-              <img
-                src="/assets/docx/image1.png"
-                alt="Paper Products"
-                className="rounded-2xl w-full h-56 object-cover mt-8"
-                referrerPolicy="no-referrer"
+                loading="lazy"
               />
             </div>
           </div>

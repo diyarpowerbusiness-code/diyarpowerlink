@@ -59,9 +59,14 @@ export const Contact = () => {
                     </div>
                     <div>
                       <h4 className="font-bold text-primary mb-1">Our Address</h4>
-                      <p className="text-slate-600 text-sm leading-relaxed">
+                      <a
+                        href="https://www.google.com/maps/search/?api=1&query=Building%2010-6-87%2F2%2C%20Street%20Rural%20Police%20Station%2C%20Srinivasa%20Colony%2C%20Mahabubnagar%20509001%2C%20Telangana%2C%20India"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-slate-600 text-sm leading-relaxed hover:text-blue-600 transition-colors"
+                      >
                         Building 10-6-87/2, Street Rural Police Station, Srinivasa Colony, Mahabubnagar – 509001, Telangana, India
-                      </p>
+                      </a>
                     </div>
                   </div>
 
@@ -71,7 +76,9 @@ export const Contact = () => {
                     </div>
                     <div>
                       <h4 className="font-bold text-primary mb-1">Phone Number</h4>
-                      <p className="text-slate-600 text-sm">+91 8688050498</p>
+                      <a href="tel:+918688050498" className="text-slate-600 text-sm hover:text-blue-600 transition-colors">
+                        +91 8688050498
+                      </a>
                     </div>
                   </div>
 
@@ -81,7 +88,9 @@ export const Contact = () => {
                     </div>
                     <div>
                       <h4 className="font-bold text-primary mb-1">Email Address</h4>
-                      <p className="text-slate-600 text-sm">info@diyarpowerlink.com</p>
+                      <a href="mailto:info@diyarpowerlink.com" className="text-slate-600 text-sm hover:text-blue-600 transition-colors">
+                        info@diyarpowerlink.com
+                      </a>
                     </div>
                   </div>
 
@@ -98,13 +107,18 @@ export const Contact = () => {
               </div>
 
               {/* Map Placeholder */}
-              <div className="bg-slate-200 rounded-3xl h-64 flex items-center justify-center overflow-hidden border border-slate-200">
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Building%2010-6-87%2F2%2C%20Street%20Rural%20Police%20Station%2C%20Srinivasa%20Colony%2C%20Mahabubnagar%20509001%2C%20Telangana%2C%20India"
+                target="_blank"
+                rel="noreferrer"
+                className="bg-slate-200 rounded-3xl h-64 flex items-center justify-center overflow-hidden border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all"
+              >
                 <div className="text-center p-8">
                   <MapPin size={48} className="text-slate-400 mx-auto mb-4" />
-                  <p className="text-slate-500 font-medium">Map View Placeholder</p>
+                  <p className="text-slate-600 font-medium">Open in Google Maps</p>
                   <p className="text-xs text-slate-400 mt-2">Mahabubnagar, Telangana, India</p>
                 </div>
-              </div>
+              </a>
             </div>
 
             {/* Contact Form */}
