@@ -45,9 +45,20 @@ export const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-2">
-              {logoUrl ? (
-                <img src={logoUrl} alt={companyName} className="w-11 h-11 object-contain rounded-lg" />
-              ) : (
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={companyName}
+                className="w-11 h-11 object-contain rounded-lg"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.dataset.fallback) {
+                    target.dataset.fallback = '1';
+                    target.src = fallbackLogo;
+                  }
+                }}
+              />
+            ) : (
               <div className="w-11 h-11 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/20">
                 <span className="text-white font-bold text-xl">D</span>
               </div>
@@ -217,7 +228,18 @@ export const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-6">
               {logoUrl ? (
-                <img src={logoUrl} alt={companyName} className="w-8 h-8 object-contain rounded" />
+                <img
+                  src={logoUrl}
+                  alt={companyName}
+                  className="w-8 h-8 object-contain rounded"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.dataset.fallback) {
+                      target.dataset.fallback = '1';
+                      target.src = fallbackLogo;
+                    }
+                  }}
+                />
               ) : (
                 <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
                   <span className="text-primary font-bold">D</span>
