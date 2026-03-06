@@ -10,6 +10,7 @@ import { AdminServicesPage } from './admin/AdminServicesPage';
 import { AdminContactPage } from './admin/AdminContactPage';
 import { AdminMedia } from './admin/AdminMedia';
 import { AdminSettings } from './admin/AdminSettings';
+import { AdminUsers } from './admin/AdminUsers';
 import { pingApi } from './api';
 
 const ScrollToTop = () => {
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="contact-page" element={<AdminContactPage />} />
           <Route path="media" element={<AdminMedia />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="admins" element={<AdminUsers />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -18,6 +18,7 @@ import { Message } from './models/Message.js';
 import { Media } from './models/Media.js';
 import { Settings } from './models/Settings.js';
 import { Category } from './models/Category.js';
+import { AdminUser } from './models/AdminUser.js';
 import { defaultCategories, defaultBusinessAreas, defaultServices, defaultPartners, defaultProducts } from './seed/defaults.js';
 import { defaultSettings } from './seed/defaultSettings.js';
 
@@ -103,6 +104,14 @@ app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body || {};
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
+  const dbUser = await AdminUser.findOne({ email });
+  if (dbUser) {
+    const valid = await bcrypt.compare(password, dbUser.passwordHash);
+    if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
+    const token = jwt.sign({ email, role: dbUser.role }, JWT_SECRET, { expiresIn: '12h' });
+    return res.json({ token });
+  }
+
   if (email !== ADMIN_EMAIL) return res.status(401).json({ error: 'Invalid credentials' });
 
   let valid = false;
@@ -114,7 +123,7 @@ app.post('/api/auth/login', async (req, res) => {
 
   if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
-  const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '12h' });
+  const token = jwt.sign({ email, role: 'super' }, JWT_SECRET, { expiresIn: '12h' });
   res.json({ token });
 });
 
@@ -250,6 +259,35 @@ app.delete('/api/messages/:id', requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// Admin Users
+app.get('/api/admin-users', requireAuth, async (_req, res) => {
+  const users = await AdminUser.find().sort({ createdAt: -1 }).select('-passwordHash');
+  res.json(users);
+});
+app.post('/api/admin-users', requireAuth, async (req, res) => {
+  const { name, email, password, role } = req.body || {};
+  if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+  const exists = await AdminUser.findOne({ email });
+  if (exists) return res.status(400).json({ error: 'Email already exists' });
+  const passwordHash = await bcrypt.hash(password, 10);
+  const created = await AdminUser.create({ name: name || '', email, passwordHash, role: role || 'admin' });
+  res.json({ _id: created._id, name: created.name, email: created.email, role: created.role, createdAt: created.createdAt });
+});
+app.put('/api/admin-users/:id', requireAuth, async (req, res) => {
+  const { name, email, password, role } = req.body || {};
+  const update = { };
+  if (name !== undefined) update.name = name;
+  if (email !== undefined) update.email = email;
+  if (role !== undefined) update.role = role;
+  if (password) update.passwordHash = await bcrypt.hash(password, 10);
+  const updated = await AdminUser.findByIdAndUpdate(req.params.id, update, { new: true }).select('-passwordHash');
+  res.json(updated);
+});
+app.delete('/api/admin-users/:id', requireAuth, async (req, res) => {
+  await AdminUser.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+
 // Public contact form
 app.post('/api/messages', async (req, res) => {
   const { name, email, message } = req.body || {};
@@ -302,13 +340,14 @@ const start = async () => {
 start();
 
 async function seedDefaults() {
-  const [catCount, areaCount, serviceCount, partnerCount, productCount, settingsCount] = await Promise.all([
+  const [catCount, areaCount, serviceCount, partnerCount, productCount, settingsCount, adminCount] = await Promise.all([
     Category.countDocuments(),
     BusinessArea.countDocuments(),
     Service.countDocuments(),
     Partner.countDocuments(),
     Product.countDocuments(),
-    Settings.countDocuments()
+    Settings.countDocuments(),
+    AdminUser.countDocuments()
   ]);
 
   if (catCount === 0) await Category.insertMany(defaultCategories);
@@ -317,4 +356,10 @@ async function seedDefaults() {
   if (partnerCount === 0) await Partner.insertMany(defaultPartners);
   if (productCount === 0) await Product.insertMany(defaultProducts);
   if (settingsCount === 0) await Settings.create(defaultSettings);
+  if (adminCount === 0) {
+    const passwordHash = ADMIN_PASSWORD_HASH || (ADMIN_PASSWORD ? await bcrypt.hash(ADMIN_PASSWORD, 10) : '');
+    if (ADMIN_EMAIL && passwordHash) {
+      await AdminUser.create({ name: 'Administrator', email: ADMIN_EMAIL, passwordHash, role: 'super' });
+    }
+  }
 }

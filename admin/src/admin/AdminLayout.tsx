@@ -141,6 +141,15 @@ export const AdminLayout = () => {
           >
             Settings
           </Link>
+          <Link
+            to="/admins"
+            className={`block px-4 py-2.5 rounded-xl text-sm font-semibold ${location.pathname === '/admins'
+              ? 'bg-blue-600 text-white'
+              : 'text-slate-600 hover:bg-slate-100'
+              }`}
+          >
+            Admin Users
+          </Link>
         </nav>
         <button
           onClick={onLogout}
