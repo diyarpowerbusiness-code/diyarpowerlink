@@ -49,7 +49,9 @@ app.use(express.json());
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const uploadsDir = path.join(__dirname, '..', 'uploads');
+const uploadsDir = process.env.UPLOAD_DIR
+  ? process.env.UPLOAD_DIR
+  : (process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, '..', 'uploads'));
 // Ensure uploads directory exists for multer
 fs.mkdir(uploadsDir, { recursive: true }).catch(() => {});
 app.use('/uploads', express.static(uploadsDir));
