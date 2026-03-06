@@ -357,7 +357,15 @@ async function seedDefaults() {
   if (serviceCount === 0) await Service.insertMany(defaultServices);
   if (partnerCount === 0) await Partner.insertMany(defaultPartners);
   if (productCount === 0) await Product.insertMany(defaultProducts);
-  if (settingsCount === 0) await Settings.create(defaultSettings);
+  if (settingsCount === 0) {
+    await Settings.create(defaultSettings);
+  } else {
+    const settings = await Settings.findOne();
+    if (settings && !settings.logo) {
+      settings.logo = defaultSettings.logo;
+      await settings.save();
+    }
+  }
   if (adminCount === 0) {
     const passwordHash = ADMIN_PASSWORD_HASH || (ADMIN_PASSWORD ? await bcrypt.hash(ADMIN_PASSWORD, 10) : '');
     if (ADMIN_EMAIL && passwordHash) {

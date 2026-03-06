@@ -1,6 +1,6 @@
 export const defaultSettings = {
   websiteName: 'Diyar Power Link LLP',
-  logo: '',
+  logo: '/assets/partners/diyar-logo.jpg',
   footerText: 'Diyar Power Link LLP and Diyar Computers: Your One Shop for All IT Needs. Providing high-quality IT hardware, specialized paper products, medical supplies, and industrial packaging solutions across India.',
   footerDivisions: [
     'IT Solutions & Infrastructure',
