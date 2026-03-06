@@ -46,20 +46,22 @@ export const Navbar = () => {
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-2">
             {logoUrl ? (
-              <img
-                src={logoUrl}
-                alt={companyName}
-                className="w-20 h-12 object-contain"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  if (!target.dataset.fallback) {
-                    target.dataset.fallback = '1';
-                    target.src = fallbackLogo;
-                  }
-                }}
-              />
+              <span className="bg-slate-900 rounded-xl p-2 flex items-center justify-center">
+                <img
+                  src={logoUrl}
+                  alt={companyName}
+                  className="w-20 h-12 object-contain"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.dataset.fallback) {
+                      target.dataset.fallback = '1';
+                      target.src = fallbackLogo;
+                    }
+                  }}
+                />
+              </span>
             ) : (
-                <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/20">
+              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-600/20">
                 <span className="text-white font-bold text-xl">D</span>
               </div>
             )}
@@ -231,18 +233,20 @@ export const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-6">
               {logoUrl ? (
-                <img
-                  src={logoUrl}
-                  alt={companyName}
-                className="w-16 h-10 object-contain"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    if (!target.dataset.fallback) {
-                      target.dataset.fallback = '1';
-                      target.src = fallbackLogo;
-                    }
-                  }}
-                />
+                <span className="bg-slate-900 rounded-lg p-2 flex items-center justify-center">
+                  <img
+                    src={logoUrl}
+                    alt={companyName}
+                    className="w-16 h-10 object-contain"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.dataset.fallback) {
+                        target.dataset.fallback = '1';
+                        target.src = fallbackLogo;
+                      }
+                    }}
+                  />
+                </span>
               ) : (
                 <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
                   <span className="text-primary font-bold">D</span>
