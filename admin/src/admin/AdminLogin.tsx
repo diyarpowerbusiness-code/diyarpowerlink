@@ -12,7 +12,7 @@ export const AdminLogin = () => {
     try {
       const res = await api.login(email, password);
       localStorage.setItem('admin_token', res.token);
-      window.location.href = '/admin';
+      window.location.href = '/';
     } catch (err) {
       setError('Invalid credentials');
     }

@@ -22,7 +22,7 @@ const ScrollToTop = () => {
 
 const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('admin_token');
-  if (!token) return <Navigate to="/admin/login" replace />;
+  if (!token) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };
 
@@ -41,8 +41,8 @@ export default function App() {
     <Router>
       <ScrollToTop />
       <Routes>
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminRoot />}>
+        <Route path="/login" element={<AdminLogin />} />
+        <Route path="/" element={<AdminRoot />}>
           <Route index element={<AdminDashboard />} />
           <Route path="homepage" element={<AdminHomePage />} />
           <Route path="about-page" element={<AdminAboutPage />} />
@@ -52,8 +52,7 @@ export default function App() {
           <Route path="media" element={<AdminMedia />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
-        <Route path="/" element={<Navigate to="/admin" replace />} />
-        <Route path="*" element={<Navigate to="/admin" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

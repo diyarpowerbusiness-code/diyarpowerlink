@@ -6,41 +6,45 @@ const groups = [
   {
     name: 'Home Page',
     items: [
-      { name: 'Hero Section', path: '/admin/homepage?tab=Hero%20Section' },
-      { name: 'Background Images', path: '/admin/homepage?tab=Background%20Images' },
-      { name: 'Business Areas', path: '/admin/homepage?tab=Business%20Areas' },
-      { name: 'Services Preview', path: '/admin/homepage?tab=Services%20Preview' },
-      { name: 'Partners / Brand Logos', path: '/admin/homepage?tab=Partners%20/%20Brand%20Logos' }
+      { name: 'Hero Section', path: '/homepage?tab=Hero%20Section' },
+      { name: 'Hero Buttons & Badges', path: '/homepage?tab=Hero%20Buttons%20&%20Badges' },
+      { name: 'Background Images', path: '/homepage?tab=Background%20Images' },
+      { name: 'Who We Are', path: '/homepage?tab=Who%20We%20Are' },
+      { name: 'Business Areas', path: '/homepage?tab=Business%20Areas' },
+      { name: 'Services Preview', path: '/homepage?tab=Services%20Preview' },
+      { name: 'Products Preview', path: '/homepage?tab=Products%20Preview' },
+      { name: 'Why Choose Us', path: '/homepage?tab=Why%20Choose%20Us' },
+      { name: 'Partners / Brand Logos', path: '/homepage?tab=Partners%20/%20Brand%20Logos' }
     ]
   },
   {
     name: 'About Page',
     items: [
-      { name: 'Company Overview', path: '/admin/about-page?tab=Company%20Overview' },
-      { name: 'Vision', path: '/admin/about-page?tab=Vision/Mission/Philosophy' },
-      { name: 'Mission', path: '/admin/about-page?tab=Vision/Mission/Philosophy' },
-      { name: 'Philosophy', path: '/admin/about-page?tab=Vision/Mission/Philosophy' }
+      { name: 'Company Overview', path: '/about-page?tab=Company%20Overview' },
+      { name: 'Vision', path: '/about-page?tab=Vision/Mission/Philosophy' },
+      { name: 'Mission', path: '/about-page?tab=Vision/Mission/Philosophy' },
+      { name: 'Philosophy', path: '/about-page?tab=Vision/Mission/Philosophy' }
     ]
   },
   {
     name: 'Products Page',
     items: [
-      { name: 'Product Categories', path: '/admin/products-page?tab=Product%20Categories' },
-      { name: 'Products List', path: '/admin/products-page?tab=Products%20List' }
+      { name: 'Product Categories', path: '/products-page?tab=Product%20Categories' },
+      { name: 'Products List', path: '/products-page?tab=Products%20List' }
     ]
   },
   {
     name: 'Services Page',
     items: [
-      { name: 'Services List', path: '/admin/services-page?tab=Services%20List' },
-      { name: 'Service Details', path: '/admin/services-page?tab=Service%20Details' }
+      { name: 'Services List', path: '/services-page?tab=Services%20List' },
+      { name: 'Service Details', path: '/services-page?tab=Service%20Details' }
     ]
   },
   {
     name: 'Contact Page',
     items: [
-      { name: 'Contact Information', path: '/admin/contact-page?tab=Contact%20Details' },
-      { name: 'Messages', path: '/admin/contact-page?tab=Messages' }
+      { name: 'Contact Information', path: '/contact-page?tab=Contact%20Details' },
+      { name: 'Messages', path: '/contact-page?tab=Messages' }
     ]
   }
 ];
@@ -58,7 +62,7 @@ export const AdminLayout = () => {
   useEffect(() => {
     const token = localStorage.getItem('admin_token');
     if (!token) {
-      window.location.href = '/admin/login';
+      window.location.href = '/login';
       return;
     }
     fetch(`${API_BASE}/api/dashboard/summary`, {
@@ -66,7 +70,7 @@ export const AdminLayout = () => {
     }).then((res) => {
       if (!res.ok) {
         localStorage.removeItem('admin_token');
-        window.location.href = '/admin/login';
+        window.location.href = '/login';
       }
     }).catch(() => {
       // If backend is down, keep user here so they can start it
@@ -75,7 +79,7 @@ export const AdminLayout = () => {
 
   const onLogout = () => {
     localStorage.removeItem('admin_token');
-    window.location.href = '/admin/login';
+    window.location.href = '/login';
   };
 
   return (
@@ -84,8 +88,8 @@ export const AdminLayout = () => {
         <div className="text-lg font-bold text-slate-900 mb-8">Admin Panel</div>
         <nav className="space-y-2">
           <Link
-            to="/admin"
-            className={`block px-4 py-2.5 rounded-xl text-sm font-semibold ${location.pathname === '/admin'
+            to="/"
+            className={`block px-4 py-2.5 rounded-xl text-sm font-semibold ${location.pathname === '/'
               ? 'bg-blue-600 text-white'
               : 'text-slate-600 hover:bg-slate-100'
               }`}
@@ -120,8 +124,8 @@ export const AdminLayout = () => {
             </div>
           ))}
           <Link
-            to="/admin/media"
-            className={`block px-4 py-2.5 rounded-xl text-sm font-semibold ${location.pathname === '/admin/media'
+            to="/media"
+            className={`block px-4 py-2.5 rounded-xl text-sm font-semibold ${location.pathname === '/media'
               ? 'bg-blue-600 text-white'
               : 'text-slate-600 hover:bg-slate-100'
               }`}
@@ -129,8 +133,8 @@ export const AdminLayout = () => {
             Media Library
           </Link>
           <Link
-            to="/admin/settings"
-            className={`block px-4 py-2.5 rounded-xl text-sm font-semibold ${location.pathname === '/admin/settings'
+            to="/settings"
+            className={`block px-4 py-2.5 rounded-xl text-sm font-semibold ${location.pathname === '/settings'
               ? 'bg-blue-600 text-white'
               : 'text-slate-600 hover:bg-slate-100'
               }`}
