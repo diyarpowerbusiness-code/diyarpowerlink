@@ -107,15 +107,15 @@ export const AdminServicesPage = () => {
           </button>
         ))}
       </div>
-      <form onSubmit={submit} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-        {section === 'Services List' && (
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-            <AdminServices />
-          </div>
-        )}
 
-        {section === 'Service Details' && (
-          <>
+      {section === 'Services List' ? (
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <AdminServices />
+        </div>
+      ) : (
+        <form onSubmit={submit} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+          {section === 'Service Details' && (
+            <>
             <h2 className="text-lg font-semibold text-slate-800">Hero</h2>
             <textarea rows={2} placeholder="Hero Title" value={form.servicesPage?.heroTitle || ''} onChange={(e) => setForm({ ...form, servicesPage: { ...form.servicesPage, heroTitle: e.target.value } })} className="w-full border border-slate-200 rounded-xl px-3 py-2" />
             <textarea placeholder="Hero Subtitle" value={form.servicesPage?.heroSubtitle || ''} onChange={(e) => setForm({ ...form, servicesPage: { ...form.servicesPage, heroSubtitle: e.target.value } })} className="w-full border border-slate-200 rounded-xl px-3 py-2" />
@@ -155,22 +155,23 @@ export const AdminServicesPage = () => {
               addLabel="Add Enterprise Item"
               placeholder="Enterprise item"
             />
-          </>
-        )}
-
-        <div className="flex items-center gap-3">
-          <button className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-semibold">
-            {saveState === 'saving' ? 'Saving...' : 'Save Services Page'}
-          </button>
-          {section === 'Service Details' && (
-            <button type="button" onClick={clearSection} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm">
-              Clear Section
-            </button>
+            </>
           )}
-          {saveState === 'saved' && <span className="text-sm text-emerald-600">Saved</span>}
-          {saveState === 'error' && <span className="text-sm text-red-600">Save failed</span>}
-        </div>
-      </form>
+
+          <div className="flex items-center gap-3">
+            <button className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-semibold">
+              {saveState === 'saving' ? 'Saving...' : 'Save Services Page'}
+            </button>
+            {section === 'Service Details' && (
+              <button type="button" onClick={clearSection} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm">
+                Clear Section
+              </button>
+            )}
+            {saveState === 'saved' && <span className="text-sm text-emerald-600">Saved</span>}
+            {saveState === 'error' && <span className="text-sm text-red-600">Save failed</span>}
+          </div>
+        </form>
+      )}
     </div>
   );
 };

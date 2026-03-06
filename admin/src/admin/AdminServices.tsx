@@ -3,6 +3,16 @@ import * as Icons from 'lucide-react';
 import { api } from './api';
 
 const empty = { title: '', description: '', icon: '', featured: false };
+const iconPool = [
+  'Lightbulb',
+  'Wrench',
+  'Network',
+  'Headphones',
+  'ShieldCheck',
+  'Truck',
+  'Server',
+  'Settings'
+];
 
 export const AdminServices = ({ embedded = false }: { embedded?: boolean }) => {
   const [items, setItems] = useState<any[]>([]);
@@ -17,8 +27,12 @@ export const AdminServices = ({ embedded = false }: { embedded?: boolean }) => {
     e.preventDefault();
     setSaveState('saving');
     try {
-      if (editingId) await api.update('services', editingId, form);
-      else await api.create('services', form);
+      const resolvedIcon = form.icon && form.icon.trim()
+        ? form.icon.trim()
+        : iconPool[items.length % iconPool.length];
+      const payload = { ...form, icon: resolvedIcon };
+      if (editingId) await api.update('services', editingId, payload);
+      else await api.create('services', payload);
       setSaveState('saved');
     } catch {
       setSaveState('error');
