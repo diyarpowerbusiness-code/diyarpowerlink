@@ -106,13 +106,13 @@ export const About = () => {
                 ))}
               </div>
 
-              <div className="mt-10 grid grid-cols-2 gap-4">
-                {strengths.slice(0, 4).map((item: any, i: number) => (
-                  <div key={i} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                    <p className="font-bold text-primary text-sm">{item.title}</p>
-                    <p className="text-xs text-slate-500 mt-1">{item.description}</p>
-                  </div>
-                ))}
+                <div className="mt-10 grid grid-cols-2 gap-4">
+                 {strengths.map((item: any, i: number) => (
+                   <div key={i} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                      <p className="font-bold text-primary text-sm">{item.title}</p>
+                      <p className="text-xs text-slate-500 mt-1">{item.description}</p>
+                    </div>
+                  ))}
               </div>
             </div>
             <div className="rounded-3xl overflow-hidden shadow-2xl">
