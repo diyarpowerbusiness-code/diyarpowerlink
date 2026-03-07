@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { API_BASE } from '../api';
 
 export const AdminLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const loginPath = location.pathname.startsWith('/admin') ? '/admin/login' : '/login';
 
   useEffect(() => {
     const token = localStorage.getItem('admin_token');
     if (!token) {
-      window.location.href = '/login';
+      navigate(loginPath, { replace: true });
       return;
     }
     fetch(`${API_BASE}/api/dashboard/summary`, {
@@ -16,16 +18,16 @@ export const AdminLayout = () => {
     }).then((res) => {
       if (!res.ok) {
         localStorage.removeItem('admin_token');
-        window.location.href = '/login';
+        navigate(loginPath, { replace: true });
       }
     }).catch(() => {
       // If backend is down, keep user here so they can start it
     });
-  }, []);
+  }, [navigate, loginPath]);
 
   const onLogout = () => {
     localStorage.removeItem('admin_token');
-    window.location.href = '/login';
+    navigate(loginPath, { replace: true });
   };
 
   return (
