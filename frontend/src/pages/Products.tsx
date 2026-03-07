@@ -3,7 +3,7 @@ import { PRODUCT_CATEGORIES } from '../constants';
 import { SectionHeader } from '../components/UI';
 import { Link } from 'react-router-dom';
 import { API_BASE } from '../api';
-import { resolveImageUrl } from '../utils/media';
+import { getCategoryFallbackImage, resolveImageUrl } from '../utils/media';
 
 export const Products = () => {
   const [categories, setCategories] = useState<any[]>(PRODUCT_CATEGORIES.map((c) => ({
@@ -64,12 +64,21 @@ export const Products = () => {
                 className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col"
               >
                 <div className="aspect-[4/3] overflow-hidden bg-white">
+                  {(() => {
+                    const fallback = getCategoryFallbackImage(category.name);
+                    const src = resolveImageUrl(category.image || fallback);
+                    return (
                   <img
-                    src={resolveImageUrl(category.image)}
+                    src={src}
                     alt={category.name}
                     className="w-full h-full object-cover object-center"
                     loading="lazy"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = fallback;
+                    }}
                   />
+                    );
+                  })()}
                 </div>
                 <div className="p-5 flex flex-col flex-grow">
                   <h3 className="text-xl font-display font-bold text-primary mb-2">{category.name}</h3>

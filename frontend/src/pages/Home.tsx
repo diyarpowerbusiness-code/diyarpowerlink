@@ -270,26 +270,6 @@ export const Home = () => {
       </section>
 
 
-      {/* Products Preview */}
-      <section className="py-20 bg-white border-y border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title={settings.home?.productsPreviewTitle || 'Featured Products'}
-            subtitle={settings.home?.productsPreviewSubtitle || 'A snapshot of our most requested product categories and solutions.'}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(products.length ? products : []).map((product: any) => (
-              <CatalogProductCard key={product._id || product.name} product={product} />
-            ))}
-          </div>
-          <div className="mt-10 text-center">
-            <Link to={settings.home?.productsPreviewCtaLink || '/products'} className="inline-flex items-center text-blue-600 font-semibold hover:underline">
-              {settings.home?.productsPreviewCtaLabel || 'View All Products'} <ArrowRight className="ml-1" size={18} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* Services Overview */}
       <section className="py-20 bg-slate-50 bg-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
