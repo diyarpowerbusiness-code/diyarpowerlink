@@ -165,12 +165,22 @@ export const AdminMedia = () => {
           <div className="mt-2 text-sm text-indigo-700">{assignResult}</div>
         )}
       </form>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="space-y-2">
         {items.map((item) => (
-          <div key={item._id} className="border border-slate-100 rounded-xl p-3 bg-white">
-            <img src={resolveImageUrl(item.url)} alt={item.filename} className="w-full h-32 object-cover rounded-lg" />
-            <p className="text-xs text-slate-600 mt-2 truncate">{item.filename}</p>
-            <div className="flex items-center gap-3 mt-2">
+          <div
+            key={item._id}
+            className="border border-slate-100 rounded-xl px-3 py-2 bg-white flex items-center gap-3"
+          >
+            <img
+              src={resolveImageUrl(item.url)}
+              alt={item.filename}
+              className="h-12 w-12 rounded-lg object-cover border border-slate-100"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-slate-700 truncate">{item.filename}</p>
+              <p className="text-xs text-slate-400 truncate">{item.url}</p>
+            </div>
+            <div className="flex items-center gap-2">
               <button onClick={() => copyUrl(resolveImageUrl(item.url))} className="text-xs text-blue-600">Copy URL</button>
               <button onClick={() => remove(item._id)} className="text-xs text-red-600">Delete</button>
             </div>
