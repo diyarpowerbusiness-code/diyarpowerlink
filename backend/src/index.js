@@ -94,6 +94,8 @@ const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || '';
 const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || '';
 const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || '';
 const CLOUDINARY_FOLDER = process.env.CLOUDINARY_FOLDER || 'diyar-power-link';
+const PUBLIC_SITE_URL = process.env.PUBLIC_SITE_URL || '';
+const BACKEND_PUBLIC_URL = process.env.BACKEND_PUBLIC_URL || '';
 const useCloudinary = Boolean(CLOUDINARY_CLOUD_NAME && CLOUDINARY_API_KEY && CLOUDINARY_API_SECRET);
 
 if (useCloudinary) {
@@ -284,6 +286,126 @@ app.post('/api/media/import-assets', requireAuth, async (_req, res) => {
 app.delete('/api/media/:id', requireAuth, async (req, res) => {
   await Media.findByIdAndDelete(req.params.id);
   res.json({ success: true });
+});
+
+// Migrate existing image URLs to Cloudinary
+app.post('/api/media/migrate', requireAuth, async (_req, res) => {
+  if (!useCloudinary) return res.status(400).json({ error: 'Cloudinary not configured' });
+  if (!PUBLIC_SITE_URL || !BACKEND_PUBLIC_URL) {
+    return res.status(400).json({ error: 'PUBLIC_SITE_URL and BACKEND_PUBLIC_URL are required' });
+  }
+
+  let updated = 0;
+  const failures = [];
+
+  const resolveRemote = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    if (url.startsWith('/assets')) return `${PUBLIC_SITE_URL}${url}`;
+    if (url.startsWith('/uploads')) return `${BACKEND_PUBLIC_URL}${url}`;
+    return '';
+  };
+
+  const shouldSkip = (url) => !url || url.includes('res.cloudinary.com');
+
+  const uploadUrl = async (url) => {
+    const remote = resolveRemote(url);
+    if (!remote) return '';
+    const uploaded = await cloudinary.uploader.upload(remote, {
+      folder: CLOUDINARY_FOLDER,
+      resource_type: 'image'
+    });
+    return uploaded.secure_url || '';
+  };
+
+  const migrateField = async (doc, field) => {
+    const value = doc[field];
+    if (shouldSkip(value)) return false;
+    try {
+      const newUrl = await uploadUrl(value);
+      if (newUrl) {
+        doc[field] = newUrl;
+        updated += 1;
+        return true;
+      }
+    } catch (err) {
+      failures.push({ field, value, error: err?.message || 'upload failed' });
+    }
+    return false;
+  };
+
+  const migrateArrayField = async (doc, field) => {
+    const arr = doc[field];
+    if (!Array.isArray(arr) || arr.length === 0) return false;
+    let changed = false;
+    const next = [];
+    for (const item of arr) {
+      if (shouldSkip(item)) {
+        next.push(item);
+        continue;
+      }
+      try {
+        const newUrl = await uploadUrl(item);
+        next.push(newUrl || item);
+        if (newUrl) {
+          updated += 1;
+          changed = true;
+        }
+      } catch (err) {
+        failures.push({ field, value: item, error: err?.message || 'upload failed' });
+        next.push(item);
+      }
+    }
+    if (changed) doc[field] = next;
+    return changed;
+  };
+
+  // Settings images
+  const settings = await Settings.findOne();
+  if (settings) {
+    let changed = false;
+    changed = (await migrateField(settings, 'logo')) || changed;
+    if (settings.home) {
+      changed = (await migrateField(settings.home, 'heroBackgroundImage')) || changed;
+      changed = (await migrateField(settings.home, 'whoImage')) || changed;
+    }
+    if (settings.about) {
+      changed = (await migrateField(settings.about, 'heroImage')) || changed;
+      changed = (await migrateField(settings.about, 'image')) || changed;
+    }
+    if (changed) await settings.save();
+  }
+
+  // Categories
+  const categories = await Category.find();
+  for (const cat of categories) {
+    const changed = await migrateField(cat, 'image');
+    if (changed) await cat.save();
+  }
+
+  // Business Areas
+  const areas = await BusinessArea.find();
+  for (const area of areas) {
+    const changed = await migrateField(area, 'image');
+    if (changed) await area.save();
+  }
+
+  // Partners
+  const partners = await Partner.find();
+  for (const partner of partners) {
+    const changed = await migrateField(partner, 'logo');
+    if (changed) await partner.save();
+  }
+
+  // Products
+  const products = await Product.find();
+  for (const product of products) {
+    let changed = false;
+    changed = (await migrateArrayField(product, 'images')) || changed;
+    if (changed) await product.save();
+  }
+
+  res.json({ success: true, updated, failures });
 });
 
 // Messages

@@ -30,7 +30,8 @@ export const UploadField = ({ label, value, onChange, onUploadingChange }: Uploa
     onUploadingChange?.(true);
     try {
       const res = await api.upload(fileToUpload);
-      const url = res?.url ? `${API_BASE}${res.url}` : '';
+      const rawUrl = res?.url || '';
+      const url = rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : (rawUrl ? `${API_BASE}${rawUrl}` : '');
       if (url) {
         onChange(url);
       } else {

@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/sync-assets.js",
     "dev": "vite --port=3001 --host=0.0.0.0",
     "postinstall": "node scripts/sync-assets.js",
     "prebuild": "node scripts/sync-assets.js",
