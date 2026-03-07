@@ -46,5 +46,9 @@ export const api = {
       headers: { ...authHeaders() },
       body: form
     }).then(r => r.json());
-  }
+  },
+  seedDefaults: () => fetch(`${base}/api/admin/seed-defaults`, {
+    method: 'POST',
+    headers: authHeaders()
+  }).then(r => r.json())
 };

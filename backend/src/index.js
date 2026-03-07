@@ -278,6 +278,32 @@ app.put('/api/settings', requireAuth, async (req, res) => {
   res.json(await Settings.create(req.body));
 });
 
+// Seed defaults (admin only)
+app.post('/api/admin/seed-defaults', requireAuth, async (_req, res) => {
+  try {
+    await seedDefaults();
+    const counts = await Promise.all([
+      Category.countDocuments(),
+      BusinessArea.countDocuments(),
+      Service.countDocuments(),
+      Partner.countDocuments(),
+      Product.countDocuments()
+    ]);
+    res.json({
+      ok: true,
+      counts: {
+        categories: counts[0],
+        businessAreas: counts[1],
+        services: counts[2],
+        partners: counts[3],
+        products: counts[4]
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: 'Seed failed' });
+  }
+});
+
 // Media
 app.get('/api/media', requireAuth, async (_req, res) => res.json(await Media.find().sort({ createdAt: -1 })));
 app.post('/api/media', requireAuth, upload.single('file'), async (req, res) => {

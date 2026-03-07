@@ -20,6 +20,7 @@ export const AdminSettings = () => {
     contactRecipient: ''
   });
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [seedState, setSeedState] = useState<'idle' | 'seeding' | 'done' | 'error'>('idle');
   const [section, setSection] = useState<'Brand' | 'Social' | 'Contact' | 'Admin Users'>('Brand');
 
   useEffect(() => {
@@ -73,6 +74,16 @@ export const AdminSettings = () => {
     });
   };
 
+  const seedDefaults = async () => {
+    setSeedState('seeding');
+    try {
+      const res = await api.seedDefaults();
+      setSeedState(res?.ok ? 'done' : 'error');
+    } catch {
+      setSeedState('error');
+    }
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900 mb-6">Settings</h1>
@@ -87,6 +98,17 @@ export const AdminSettings = () => {
             {item}
           </button>
         ))}
+      </div>
+      <div className="flex items-center gap-3 mb-6">
+        <button
+          type="button"
+          onClick={seedDefaults}
+          className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 text-sm hover:bg-slate-100"
+        >
+          {seedState === 'seeding' ? 'Restoring Defaults...' : 'Restore Default Content'}
+        </button>
+        {seedState === 'done' && <span className="text-sm text-emerald-600">Defaults restored</span>}
+        {seedState === 'error' && <span className="text-sm text-red-600">Restore failed</span>}
       </div>
       {section === 'Admin Users' ? (
         <AdminUsers />
