@@ -123,6 +123,20 @@ app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body || {};
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
+  // Always allow env admin override if credentials match
+  if (email === ADMIN_EMAIL) {
+    let validEnv = false;
+    if (ADMIN_PASSWORD_HASH) {
+      validEnv = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
+    } else {
+      validEnv = password === ADMIN_PASSWORD;
+    }
+    if (validEnv) {
+      const token = jwt.sign({ email, role: 'super' }, JWT_SECRET, { expiresIn: '12h' });
+      return res.json({ token });
+    }
+  }
+
   const dbUser = await AdminUser.findOne({ email });
   if (dbUser) {
     const valid = await bcrypt.compare(password, dbUser.passwordHash);
@@ -428,11 +442,13 @@ app.post('/api/media/auto-assign', requireAuth, async (_req, res) => {
     Norton: ['norton']
   };
 
+  const isUploadsUrl = (value) => typeof value === 'string' && value.startsWith('/uploads/');
+
   const categories = await Category.find();
   for (const cat of categories) {
     const keywords = categoryMap[cat.name] || [cat.name.toLowerCase()];
     const url = findByKeywords(keywords);
-    if (url && url !== cat.image) {
+    if (url && (cat.image !== url) && (isUploadsUrl(cat.image) || !cat.image)) {
       cat.image = url;
       await cat.save();
       updated += 1;
@@ -443,7 +459,7 @@ app.post('/api/media/auto-assign', requireAuth, async (_req, res) => {
   for (const area of areas) {
     const keywords = categoryMap[area.title] || [area.title.toLowerCase()];
     const url = findByKeywords(keywords);
-    if (url && url !== area.image) {
+    if (url && (area.image !== url) && (isUploadsUrl(area.image) || !area.image)) {
       area.image = url;
       await area.save();
       updated += 1;
@@ -454,7 +470,7 @@ app.post('/api/media/auto-assign', requireAuth, async (_req, res) => {
   for (const partner of partners) {
     const keywords = partnerMap[partner.name] || [partner.name.toLowerCase()];
     const url = findByKeywords(keywords);
-    if (url && url !== partner.logo) {
+    if (url && (partner.logo !== url) && (isUploadsUrl(partner.logo) || !partner.logo)) {
       partner.logo = url;
       await partner.save();
       updated += 1;
@@ -465,7 +481,9 @@ app.post('/api/media/auto-assign', requireAuth, async (_req, res) => {
   for (const product of products) {
     const keywords = [product.name.toLowerCase(), product.category?.toLowerCase() || ''];
     const url = findByKeywords(keywords);
-    if ((!product.images || product.images.length === 0) && url) {
+    const hasImages = Array.isArray(product.images) && product.images.length > 0;
+    const allUploads = hasImages ? product.images.every(isUploadsUrl) : false;
+    if (url && (!hasImages || allUploads)) {
       product.images = [url];
       await product.save();
       updated += 1;
