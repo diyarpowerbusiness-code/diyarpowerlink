@@ -57,13 +57,13 @@ export const Products = () => {
             title={productsPage.sectionTitle || 'Browse by Category'}
             subtitle={productsPage.sectionSubtitle || 'Select a category to view products in a clean, structured grid.'}
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((category) => (
               <div
                 key={category.slug}
-                className="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg transition-shadow overflow-hidden flex flex-col"
+                className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col"
               >
-                <div className="aspect-[16/9] overflow-hidden bg-white">
+                <div className="aspect-[4/3] overflow-hidden bg-white">
                   <img
                     src={resolveImageUrl(category.image)}
                     alt={category.name}
@@ -71,12 +71,12 @@ export const Products = () => {
                     loading="lazy"
                   />
                 </div>
-                <div className="p-8 flex flex-col flex-grow">
-                  <h3 className="text-2xl font-display font-bold text-primary mb-3">{category.name}</h3>
+                <div className="p-5 flex flex-col flex-grow">
+                  <h3 className="text-xl font-display font-bold text-primary mb-2">{category.name}</h3>
                   <p className="text-slate-600 text-sm mb-6 flex-grow">{category.description}</p>
                   <Link
                     to={`/products/category/${category.slug}`}
-                    className="inline-flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition-all"
+                    className="inline-flex items-center justify-center bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 transition-all"
                   >
                     View Products
                   </Link>
