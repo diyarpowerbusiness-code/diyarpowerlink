@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import * as Icons from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Product, Service } from '../types';
-import { resolveImageUrl } from '../utils/media';
+import { getCategoryFallbackImage, resolveImageUrl } from '../utils/media';
 
 export const SectionHeader = ({
   title,
@@ -26,7 +26,7 @@ export const SectionHeader = ({
 
 export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const productId = (product as any)._id || product.id;
-  const rawImage = (product as any).image || (product as any).images?.[0] || '';
+  const rawImage = (product as any).image || (product as any).images?.[0] || getCategoryFallbackImage(product.category);
   const image = resolveImageUrl(rawImage);
   const isDocxImage = rawImage.startsWith('/assets/docx/');
 
@@ -68,7 +68,7 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
 
 export const CatalogProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const productId = (product as any)._id || product.id;
-  const rawImage = (product as any).image || (product as any).images?.[0] || '';
+  const rawImage = (product as any).image || (product as any).images?.[0] || getCategoryFallbackImage(product.category);
   const image = resolveImageUrl(rawImage);
   const isDocxImage = rawImage.startsWith('/assets/docx/');
 

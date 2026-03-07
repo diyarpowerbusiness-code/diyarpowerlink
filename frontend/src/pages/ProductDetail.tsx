@@ -4,7 +4,7 @@ import { PRODUCT_CATEGORIES, PRODUCTS } from '../constants';
 import { SectionHeader } from '../components/UI';
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { API_BASE } from '../api';
-import { resolveImageUrl } from '../utils/media';
+import { getCategoryFallbackImage, resolveImageUrl } from '../utils/media';
 
 export const ProductDetail = () => {
   const { productId } = useParams();
@@ -51,7 +51,7 @@ export const ProductDetail = () => {
     .filter((p) => p.category === product.category && (p._id || p.id) !== (product._id || product.id))
     .slice(0, 3);
 
-  const rawProductImage = product.image || product.images?.[0] || '';
+  const rawProductImage = product.image || product.images?.[0] || getCategoryFallbackImage(product.category);
   const productImage = resolveImageUrl(rawProductImage);
   const isDocxImage = rawProductImage.startsWith('/assets/docx/');
 
@@ -142,11 +142,11 @@ export const ProductDetail = () => {
                   to={`/products/${item._id || item.id}`}
                   className="bg-white rounded-2xl border border-slate-100 hover:shadow-md transition-shadow overflow-hidden"
                 >
-                  <div className={`aspect-[4/3] ${(item.image || item.images?.[0] || '').startsWith('/assets/docx/') ? 'bg-slate-50' : 'bg-white'}`}>
+                  <div className={`aspect-[4/3] ${(item.image || item.images?.[0] || getCategoryFallbackImage(item.category)).startsWith('/assets/docx/') ? 'bg-slate-50' : 'bg-white'}`}>
                     <img
-                      src={resolveImageUrl(item.image || item.images?.[0] || '')}
+                      src={resolveImageUrl(item.image || item.images?.[0] || getCategoryFallbackImage(item.category))}
                       alt={item.name}
-                      className={`w-full h-full ${(item.image || item.images?.[0] || '').startsWith('/assets/docx/') ? 'object-contain p-4' : 'object-cover'}`}
+                      className={`w-full h-full ${(item.image || item.images?.[0] || getCategoryFallbackImage(item.category)).startsWith('/assets/docx/') ? 'object-contain p-4' : 'object-cover'}`}
                     />
                   </div>
                   <div className="p-5">

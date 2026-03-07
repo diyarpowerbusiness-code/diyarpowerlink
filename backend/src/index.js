@@ -252,6 +252,7 @@ app.post('/api/media/import-assets', requireAuth, async (_req, res) => {
   const assetsRoot = path.join(__dirname, '..', '..', 'frontend', 'public', 'assets');
   const allowed = new Set(['.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif']);
   let created = 0;
+  let uploaded = 0;
 
   const walk = async (dir) => {
     const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -266,12 +267,31 @@ app.post('/api/media/import-assets', requireAuth, async (_req, res) => {
       const stat = await fs.stat(full);
       const existing = await Media.findOne({ filename: entry.name, size: stat.size });
       if (existing) continue;
-      const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-      const dest = path.join(uploadsDir, unique);
-      await fs.copyFile(full, dest);
-      const url = `/uploads/${unique}`;
-      await Media.create({ filename: entry.name, url, mimetype: `image/${ext.replace('.', '')}`, size: stat.size });
-      created += 1;
+      if (useCloudinary) {
+        try {
+          const cloud = await cloudinary.uploader.upload(full, {
+            folder: CLOUDINARY_FOLDER,
+            resource_type: 'image'
+          });
+          await Media.create({
+            filename: entry.name,
+            url: cloud.secure_url,
+            mimetype: `image/${ext.replace('.', '')}`,
+            size: stat.size
+          });
+          created += 1;
+          uploaded += 1;
+        } catch (err) {
+          // Skip failed uploads
+        }
+      } else {
+        const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+        const dest = path.join(uploadsDir, unique);
+        await fs.copyFile(full, dest);
+        const url = `/uploads/${unique}`;
+        await Media.create({ filename: entry.name, url, mimetype: `image/${ext.replace('.', '')}`, size: stat.size });
+        created += 1;
+      }
     }
   };
 
@@ -281,7 +301,7 @@ app.post('/api/media/import-assets', requireAuth, async (_req, res) => {
     return res.status(500).json({ error: 'Failed to import assets' });
   }
 
-  res.json({ success: true, created });
+  res.json({ success: true, created, uploaded });
 });
 app.delete('/api/media/:id', requireAuth, async (req, res) => {
   await Media.findByIdAndDelete(req.params.id);
