@@ -123,7 +123,7 @@ const SMTP_FROM = process.env.SMTP_FROM || '';
 const CONTACT_TO = process.env.CONTACT_TO || '';
 const SMTP_SECURE = (process.env.SMTP_SECURE || '').toLowerCase() === 'true';
 
-const canSendEmail = Boolean(SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && SMTP_FROM && CONTACT_TO);
+const canSendEmail = Boolean(SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && SMTP_FROM);
 const mailer = canSendEmail
   ? nodemailer.createTransport({
       host: SMTP_HOST,
@@ -847,7 +847,12 @@ app.post('/api/messages', async (req, res) => {
       .catch((err) => console.error('Email send failed', err));
   }
 
-  res.json(saved);
+  res.json({
+    ...saved.toObject?.(),
+    _id: saved._id,
+    emailSent: Boolean(mailer && recipient),
+    recipient: recipient || ''
+  });
 });
 
 // Health
