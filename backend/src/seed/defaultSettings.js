@@ -17,6 +17,7 @@ export const defaultSettings = {
   contactPhone: '+91 8688050498',
   contactEmail: 'info@diyarpowerlink.com',
   businessHours: 'Mon - Sat: 9:00 AM - 6:00 PM',
+  contactRecipient: 'info@diyarpowerlink.com',
   home: {
     heroBackgroundImage: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80',
     heroPrimaryLabel: 'View Products',

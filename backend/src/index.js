@@ -638,7 +638,10 @@ app.post('/api/messages', async (req, res) => {
   if (!name || !email || !message) return res.status(400).json({ error: 'Name, email, and message are required' });
   const saved = await Message.create(req.body);
 
-  if (mailer) {
+  const settings = await Settings.findOne();
+  const recipient = settings?.contactRecipient || CONTACT_TO;
+
+  if (mailer && recipient) {
     const subject = req.body.subject || 'New Contact Form Submission';
     const phone = req.body.phone || 'N/A';
     const lines = [
@@ -654,7 +657,7 @@ app.post('/api/messages', async (req, res) => {
     mailer
       .sendMail({
         from: SMTP_FROM,
-        to: CONTACT_TO,
+        to: recipient,
         replyTo: email,
         subject: `[Diyar Power Link] ${subject}`,
         text: lines.join('\n')

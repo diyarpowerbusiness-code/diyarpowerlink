@@ -44,6 +44,7 @@ const SettingsSchema = new mongoose.Schema(
     contactPhone: { type: String, default: '' },
     contactEmail: { type: String, default: '' },
     businessHours: { type: String, default: '' },
+    contactRecipient: { type: String, default: '' },
     home: {
       heroBackgroundImage: { type: String, default: '' },
       heroPrimaryLabel: { type: String, default: '' },

@@ -16,10 +16,11 @@ export const AdminSettings = () => {
       'Packaging Materials & Tools',
       'Technical Services & Support'
     ],
-    socialLinks: { facebook: '', instagram: '', linkedin: '', twitter: '' }
+    socialLinks: { facebook: '', instagram: '', linkedin: '', twitter: '' },
+    contactRecipient: ''
   });
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [section, setSection] = useState<'Brand' | 'Social' | 'Admin Users'>('Brand');
+  const [section, setSection] = useState<'Brand' | 'Social' | 'Contact' | 'Admin Users'>('Brand');
 
   useEffect(() => {
     api.list('settings')
@@ -52,7 +53,8 @@ export const AdminSettings = () => {
           logo: form.logo,
           footerText: form.footerText,
           footerDivisions: form.footerDivisions,
-          socialLinks: form.socialLinks
+          socialLinks: form.socialLinks,
+          contactRecipient: form.contactRecipient
         })
       });
       setSaveState(res.ok ? 'saved' : 'error');
@@ -66,7 +68,8 @@ export const AdminSettings = () => {
       ...form,
       websiteName: '',
       logo: '',
-      socialLinks: { facebook: '', instagram: '', linkedin: '', twitter: '' }
+      socialLinks: { facebook: '', instagram: '', linkedin: '', twitter: '' },
+      contactRecipient: ''
     });
   };
 
@@ -74,7 +77,7 @@ export const AdminSettings = () => {
     <div>
       <h1 className="text-2xl font-bold text-slate-900 mb-6">Settings</h1>
       <div className="flex flex-wrap gap-2 mb-6">
-        {(['Brand', 'Social', 'Admin Users'] as const).map((item) => (
+        {(['Brand', 'Social', 'Contact', 'Admin Users'] as const).map((item) => (
           <button
             key={item}
             type="button"
@@ -105,6 +108,18 @@ export const AdminSettings = () => {
                 <input placeholder="LinkedIn" value={form.socialLinks?.linkedin || ''} onChange={(e) => setForm({ ...form, socialLinks: { ...form.socialLinks, linkedin: e.target.value } })} className="border border-slate-200 rounded-xl px-3 py-2" />
                 <input placeholder="Twitter" value={form.socialLinks?.twitter || ''} onChange={(e) => setForm({ ...form, socialLinks: { ...form.socialLinks, twitter: e.target.value } })} className="border border-slate-200 rounded-xl px-3 py-2" />
               </div>
+            </>
+          )}
+          {section === 'Contact' && (
+            <>
+              <h2 className="text-lg font-semibold text-slate-800">Contact Emails</h2>
+              <p className="text-sm text-slate-500">Contact form submissions will be sent to this email.</p>
+              <input
+                placeholder="Recipient Email"
+                value={form.contactRecipient || ''}
+                onChange={(e) => setForm({ ...form, contactRecipient: e.target.value })}
+                className="border border-slate-200 rounded-xl px-3 py-2"
+              />
             </>
           )}
           <div className="flex items-center gap-3">
