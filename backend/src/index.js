@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import multer from 'multer';
 import nodemailer from 'nodemailer';
+import { v2 as cloudinary } from 'cloudinary';
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
@@ -88,6 +89,20 @@ const mailer = canSendEmail
       auth: { user: SMTP_USER, pass: SMTP_PASS }
     })
   : null;
+
+const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || '';
+const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || '';
+const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || '';
+const CLOUDINARY_FOLDER = process.env.CLOUDINARY_FOLDER || 'diyar-power-link';
+const useCloudinary = Boolean(CLOUDINARY_CLOUD_NAME && CLOUDINARY_API_KEY && CLOUDINARY_API_SECRET);
+
+if (useCloudinary) {
+  cloudinary.config({
+    cloud_name: CLOUDINARY_CLOUD_NAME,
+    api_key: CLOUDINARY_API_KEY,
+    api_secret: CLOUDINARY_API_SECRET
+  });
+}
 
 const requireAuth = (req, res, next) => {
   const header = req.headers.authorization || '';
@@ -209,6 +224,24 @@ app.get('/api/media', requireAuth, async (_req, res) => res.json(await Media.fin
 app.post('/api/media', requireAuth, upload.single('file'), async (req, res) => {
   const file = req.file;
   if (!file) return res.status(400).json({ error: 'File required' });
+  if (useCloudinary) {
+    try {
+      const uploaded = await cloudinary.uploader.upload(file.path, {
+        folder: CLOUDINARY_FOLDER,
+        resource_type: 'image'
+      });
+      const doc = await Media.create({
+        filename: file.originalname,
+        url: uploaded.secure_url,
+        mimetype: file.mimetype,
+        size: file.size
+      });
+      return res.json(doc);
+    } catch (err) {
+      return res.status(500).json({ error: 'Cloud upload failed' });
+    }
+  }
+
   const url = `/uploads/${file.filename}`;
   const doc = await Media.create({ filename: file.originalname, url, mimetype: file.mimetype, size: file.size });
   res.json(doc);
