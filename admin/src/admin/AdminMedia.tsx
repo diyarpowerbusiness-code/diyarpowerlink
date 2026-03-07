@@ -11,6 +11,8 @@ export const AdminMedia = () => {
   const [migrateResult, setMigrateResult] = useState<{ updated?: number; failures?: number; error?: string } | null>(null);
   const [normalizing, setNormalizing] = useState(false);
   const [normalizeResult, setNormalizeResult] = useState<string>('');
+  const [assigning, setAssigning] = useState(false);
+  const [assignResult, setAssignResult] = useState<string>('');
 
   const load = () => api.list('media').then(setItems);
   useEffect(() => { load(); }, []);
@@ -89,6 +91,26 @@ export const AdminMedia = () => {
     }
   };
 
+  const autoAssignImages = async () => {
+    setAssigning(true);
+    setAssignResult('');
+    try {
+      const res = await fetch(`${API_BASE}/api/media/auto-assign`, {
+        method: 'POST',
+        headers: { ...(localStorage.getItem('admin_token') ? { Authorization: `Bearer ${localStorage.getItem('admin_token')}` } : {}) }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAssignResult(data?.error || 'Auto-assign failed');
+      } else {
+        setAssignResult(`Auto-assigned ${data?.updated || 0} items`);
+      }
+      load();
+    } finally {
+      setAssigning(false);
+    }
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900 mb-6">Media Library</h1>
@@ -115,6 +137,9 @@ export const AdminMedia = () => {
           <button type="button" onClick={normalizeLocalhost} className="bg-amber-500 text-white px-4 py-2 rounded-lg">
             {normalizing ? 'Fixing...' : 'Fix Localhost URLs'}
           </button>
+          <button type="button" onClick={autoAssignImages} className="bg-indigo-600 text-white px-4 py-2 rounded-lg">
+            {assigning ? 'Assigning...' : 'Auto-Assign Images'}
+          </button>
         </div>
         {file && (
           <div className="mt-4 border border-slate-200 rounded-xl p-2 max-w-xs">
@@ -135,6 +160,9 @@ export const AdminMedia = () => {
         )}
         {normalizeResult && (
           <div className="mt-2 text-sm text-amber-700">{normalizeResult}</div>
+        )}
+        {assignResult && (
+          <div className="mt-2 text-sm text-indigo-700">{assignResult}</div>
         )}
       </form>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -384,6 +384,97 @@ app.post('/api/media/normalize', requireAuth, async (_req, res) => {
   res.json({ success: true, updated });
 });
 
+// Auto-assign images from Media library to content based on filename matches
+app.post('/api/media/auto-assign', requireAuth, async (_req, res) => {
+  const media = await Media.find();
+  const byName = media.map((m) => ({
+    name: (m.filename || '').toLowerCase(),
+    url: m.url
+  }));
+
+  const findByKeywords = (keywords = []) => {
+    const hits = byName.find((m) => keywords.some((k) => m.name.includes(k)));
+    return hits?.url || '';
+  };
+
+  let updated = 0;
+
+  // Settings logo
+  const settings = await Settings.findOne();
+  if (settings) {
+    const logoUrl =
+      findByKeywords(['diyar-logo-wide', 'diyar-logo', 'diyar']) ||
+      settings.logo;
+    if (logoUrl && logoUrl !== settings.logo) {
+      settings.logo = logoUrl;
+      updated += 1;
+    }
+    await settings.save();
+  }
+
+  const categoryMap = {
+    'IT Solutions': ['it solution', 'it-solutions', 'it_solutions', 'it.png', 'it solution.png'],
+    'Paper Products': ['paper products', 'paper-products', 'paperproducts'],
+    'Medical Supplies': ['medical', 'medical supplies', 'hospital', 'pcr', 'ppe'],
+    'Packaging Materials': ['packaging', 'strapping', 'stretch', 'packaging materials', 'image29']
+  };
+
+  const partnerMap = {
+    Microsoft: ['microsoft'],
+    Adobe: ['adobe'],
+    Autodesk: ['autodesk'],
+    Kaspersky: ['kaspersky'],
+    ESET: ['eset'],
+    Norton: ['norton']
+  };
+
+  const categories = await Category.find();
+  for (const cat of categories) {
+    const keywords = categoryMap[cat.name] || [cat.name.toLowerCase()];
+    const url = findByKeywords(keywords);
+    if (url && url !== cat.image) {
+      cat.image = url;
+      await cat.save();
+      updated += 1;
+    }
+  }
+
+  const areas = await BusinessArea.find();
+  for (const area of areas) {
+    const keywords = categoryMap[area.title] || [area.title.toLowerCase()];
+    const url = findByKeywords(keywords);
+    if (url && url !== area.image) {
+      area.image = url;
+      await area.save();
+      updated += 1;
+    }
+  }
+
+  const partners = await Partner.find();
+  for (const partner of partners) {
+    const keywords = partnerMap[partner.name] || [partner.name.toLowerCase()];
+    const url = findByKeywords(keywords);
+    if (url && url !== partner.logo) {
+      partner.logo = url;
+      await partner.save();
+      updated += 1;
+    }
+  }
+
+  const products = await Product.find();
+  for (const product of products) {
+    const keywords = [product.name.toLowerCase(), product.category?.toLowerCase() || ''];
+    const url = findByKeywords(keywords);
+    if ((!product.images || product.images.length === 0) && url) {
+      product.images = [url];
+      await product.save();
+      updated += 1;
+    }
+  }
+
+  res.json({ success: true, updated });
+});
+
 // Migrate existing image URLs to Cloudinary
 app.post('/api/media/migrate', requireAuth, async (_req, res) => {
   if (!useCloudinary) return res.status(400).json({ error: 'Cloudinary not configured' });
