@@ -41,15 +41,32 @@ const defaultAllowed = [
 for (const origin of defaultAllowed) {
   if (!allowedOrigins.includes(origin)) allowedOrigins.push(origin);
 }
+const defaultAllowedPatterns = ['https://*.diyarpowerlink.com'];
+for (const pattern of defaultAllowedPatterns) {
+  if (!allowedOrigins.includes(pattern)) allowedOrigins.push(pattern);
+}
+
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const originMatchesPattern = (origin, pattern) => {
+  if (pattern === '*') return true;
+  if (!pattern.includes('*')) return origin === pattern;
+  const regex = new RegExp(`^${pattern.split('*').map(escapeRegex).join('.*')}$`);
+  return regex.test(origin);
+};
+
+const isOriginAllowed = (origin) => {
+  if (allowedOrigins.length === 0) return true;
+  return allowedOrigins.some((pattern) => originMatchesPattern(origin, pattern));
+};
 
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.length === 0) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (isOriginAllowed(origin)) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   },
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
