@@ -9,6 +9,8 @@ export const AdminMedia = () => {
   const [importing, setImporting] = useState(false);
   const [migrating, setMigrating] = useState(false);
   const [migrateResult, setMigrateResult] = useState<{ updated?: number; failures?: number; error?: string } | null>(null);
+  const [normalizing, setNormalizing] = useState(false);
+  const [normalizeResult, setNormalizeResult] = useState<string>('');
 
   const load = () => api.list('media').then(setItems);
   useEffect(() => { load(); }, []);
@@ -67,6 +69,26 @@ export const AdminMedia = () => {
     }
   };
 
+  const normalizeLocalhost = async () => {
+    setNormalizing(true);
+    setNormalizeResult('');
+    try {
+      const res = await fetch(`${API_BASE}/api/media/normalize`, {
+        method: 'POST',
+        headers: { ...(localStorage.getItem('admin_token') ? { Authorization: `Bearer ${localStorage.getItem('admin_token')}` } : {}) }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setNormalizeResult(data?.error || 'Normalize failed');
+      } else {
+        setNormalizeResult(`Normalized ${data?.updated || 0} records`);
+      }
+      load();
+    } finally {
+      setNormalizing(false);
+    }
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900 mb-6">Media Library</h1>
@@ -90,6 +112,9 @@ export const AdminMedia = () => {
           <button type="button" onClick={migrateImages} className="bg-emerald-600 text-white px-4 py-2 rounded-lg">
             {migrating ? 'Migrating...' : 'Migrate Existing Images'}
           </button>
+          <button type="button" onClick={normalizeLocalhost} className="bg-amber-500 text-white px-4 py-2 rounded-lg">
+            {normalizing ? 'Fixing...' : 'Fix Localhost URLs'}
+          </button>
         </div>
         {file && (
           <div className="mt-4 border border-slate-200 rounded-xl p-2 max-w-xs">
@@ -107,6 +132,9 @@ export const AdminMedia = () => {
               </span>
             )}
           </div>
+        )}
+        {normalizeResult && (
+          <div className="mt-2 text-sm text-amber-700">{normalizeResult}</div>
         )}
       </form>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -308,6 +308,82 @@ app.delete('/api/media/:id', requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// Normalize localhost URLs stored in DB (e.g. http://localhost:4000/uploads/...)
+app.post('/api/media/normalize', requireAuth, async (_req, res) => {
+  if (!BACKEND_PUBLIC_URL) {
+    return res.status(400).json({ error: 'BACKEND_PUBLIC_URL is required' });
+  }
+
+  const replaceBase = (value) => {
+    if (!value || typeof value !== 'string') return value;
+    if (value.startsWith('http://localhost:4000')) {
+      return value.replace('http://localhost:4000', BACKEND_PUBLIC_URL);
+    }
+    if (value.startsWith('http://127.0.0.1:4000')) {
+      return value.replace('http://127.0.0.1:4000', BACKEND_PUBLIC_URL);
+    }
+    return value;
+  };
+
+  let updated = 0;
+
+  const settings = await Settings.findOne();
+  if (settings) {
+    if (settings.logo) settings.logo = replaceBase(settings.logo);
+    if (settings.home) {
+      if (settings.home.heroBackgroundImage) settings.home.heroBackgroundImage = replaceBase(settings.home.heroBackgroundImage);
+      if (settings.home.whoImage) settings.home.whoImage = replaceBase(settings.home.whoImage);
+    }
+    if (settings.about) {
+      if (settings.about.heroImage) settings.about.heroImage = replaceBase(settings.about.heroImage);
+      if (settings.about.image) settings.about.image = replaceBase(settings.about.image);
+    }
+    await settings.save();
+  }
+
+  const normalizeDocField = async (Model, field) => {
+    const docs = await Model.find();
+    for (const doc of docs) {
+      const current = doc[field];
+      const next = replaceBase(current);
+      if (current !== next) {
+        doc[field] = next;
+        await doc.save();
+        updated += 1;
+      }
+    }
+  };
+
+  await normalizeDocField(Category, 'image');
+  await normalizeDocField(BusinessArea, 'image');
+  await normalizeDocField(Partner, 'logo');
+
+  const products = await Product.find();
+  for (const product of products) {
+    let changed = false;
+    if (Array.isArray(product.images) && product.images.length) {
+      const next = product.images.map(replaceBase);
+      if (next.join('|') !== product.images.join('|')) {
+        product.images = next;
+        changed = true;
+      }
+    }
+    if (product.image) {
+      const nextImage = replaceBase(product.image);
+      if (nextImage !== product.image) {
+        product.image = nextImage;
+        changed = true;
+      }
+    }
+    if (changed) {
+      await product.save();
+      updated += 1;
+    }
+  }
+
+  res.json({ success: true, updated });
+});
+
 // Migrate existing image URLs to Cloudinary
 app.post('/api/media/migrate', requireAuth, async (_req, res) => {
   if (!useCloudinary) return res.status(400).json({ error: 'Cloudinary not configured' });
