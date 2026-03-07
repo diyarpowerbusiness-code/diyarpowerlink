@@ -5,7 +5,7 @@ import { CatalogProductCard, SectionHeader, ServiceCard } from '../components/UI
 import { PARTNERS } from '../constants';
 import { Link } from 'react-router-dom';
 import { API_BASE } from '../api';
-import { resolveImageUrl } from '../utils/media';
+import { getCategoryFallbackImage, resolveImageUrl } from '../utils/media';
 
 export const Home = () => {
   const defaultServices = [
@@ -46,6 +46,13 @@ export const Home = () => {
   const [businessAreas, setBusinessAreas] = useState<any[]>(defaultBusinessAreas);
   const [partners, setPartners] = useState<any[]>(PARTNERS);
   const [settings, setSettings] = useState<any>({});
+  const partnerFallbackMap = React.useMemo(() => {
+    const map: Record<string, string> = {};
+    PARTNERS.forEach((p) => {
+      map[p.name.toLowerCase()] = p.logo;
+    });
+    return map;
+  }, []);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/services`)
@@ -233,10 +240,20 @@ export const Home = () => {
           />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
             {businessAreas.map((sector, i) => {
+              const fallback = getCategoryFallbackImage(sector.title);
+              const imgSrc = resolveImageUrl(sector.image || fallback);
               return (
                 <div key={i} className="rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
                   <div className="aspect-[16/9] overflow-hidden bg-white">
-                    <img src={resolveImageUrl(sector.image)} alt={sector.title} className="w-full h-full object-cover object-center" loading="lazy" />
+                    <img
+                      src={imgSrc}
+                      alt={sector.title}
+                      className="w-full h-full object-cover object-center"
+                      loading="lazy"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = fallback;
+                      }}
+                    />
                   </div>
                   <div className="p-8 flex flex-col flex-grow">
                     <h3 className="text-xl font-bold text-primary mb-3">{sector.title}</h3>
@@ -346,9 +363,13 @@ export const Home = () => {
                   className="group bg-white border border-slate-100 rounded-2xl h-24 flex items-center justify-center shadow-sm hover:shadow-md hover:border-blue-200 transition-all"
                 >
                   <img
-                    src={resolveImageUrl(partner.logo)}
+                    src={resolveImageUrl(partner.logo || partnerFallbackMap[partner.name.toLowerCase()])}
                     alt={partner.name}
                     className={`object-contain grayscale group-hover:grayscale-0 transition-all ${partner.name === 'Autodesk' ? 'h-16 w-40' : 'h-10 w-28'}`}
+                    onError={(e) => {
+                      const fallback = partnerFallbackMap[partner.name.toLowerCase()] || '/assets/partners/diyar-logo.jpg';
+                      (e.currentTarget as HTMLImageElement).src = resolveImageUrl(fallback);
+                    }}
                   />
                 </a>
               ))}

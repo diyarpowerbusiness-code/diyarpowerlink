@@ -33,6 +33,14 @@ const allowedOrigins = rawOrigins
   .split(',')
   .map((value) => value.trim())
   .filter(Boolean);
+const defaultAllowed = [
+  'https://www.diyarpowerlink.com',
+  'https://diyarpowerlink.com',
+  'https://admin.diyarpowerlink.com'
+];
+for (const origin of defaultAllowed) {
+  if (!allowedOrigins.includes(origin)) allowedOrigins.push(origin);
+}
 
 const corsOptions = {
   origin: (origin, callback) => {
