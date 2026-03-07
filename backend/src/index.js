@@ -571,6 +571,39 @@ app.post('/api/media/migrate', requireAuth, async (_req, res) => {
 
   let updated = 0;
   const failures = [];
+  const assetsRoot = path.join(__dirname, '..', '..', 'frontend', 'public', 'assets');
+  const assetMap = new Map();
+  const allowed = new Set(['.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif']);
+
+  const buildAssetMap = async (dir) => {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await buildAssetMap(full);
+        continue;
+      }
+      const ext = path.extname(entry.name).toLowerCase();
+      if (!allowed.has(ext)) continue;
+      if (!assetMap.has(entry.name)) {
+        assetMap.set(entry.name, full);
+      }
+    }
+  };
+
+  try {
+    await buildAssetMap(assetsRoot);
+  } catch {
+    // ignore if assets folder missing
+  }
+
+  const mediaDocs = await Media.find();
+  const mediaCloudMap = new Map();
+  for (const doc of mediaDocs) {
+    if (doc.url && doc.url.includes('res.cloudinary.com') && doc.filename) {
+      mediaCloudMap.set(doc.filename, doc.url);
+    }
+  }
 
   const resolveRemote = (url) => {
     if (!url) return '';
@@ -592,10 +625,30 @@ app.post('/api/media/migrate', requireAuth, async (_req, res) => {
     return uploaded.secure_url || '';
   };
 
+  const uploadLocalFile = async (filePath) => {
+    const uploaded = await cloudinary.uploader.upload(filePath, {
+      folder: CLOUDINARY_FOLDER,
+      resource_type: 'image'
+    });
+    return uploaded.secure_url || '';
+  };
+
+  const pickCloudFromFilename = (value) => {
+    if (!value || typeof value !== 'string') return '';
+    const name = value.split('/').pop() || '';
+    return mediaCloudMap.get(name) || '';
+  };
+
   const migrateField = async (doc, field) => {
     const value = doc[field];
     if (shouldSkip(value)) return false;
     try {
+      const byName = pickCloudFromFilename(value);
+      if (byName) {
+        doc[field] = byName;
+        updated += 1;
+        return true;
+      }
       const newUrl = await uploadUrl(value);
       if (newUrl) {
         doc[field] = newUrl;
@@ -619,6 +672,13 @@ app.post('/api/media/migrate', requireAuth, async (_req, res) => {
         continue;
       }
       try {
+        const byName = pickCloudFromFilename(item);
+        if (byName) {
+          next.push(byName);
+          updated += 1;
+          changed = true;
+          continue;
+        }
         const newUrl = await uploadUrl(item);
         next.push(newUrl || item);
         if (newUrl) {
@@ -633,6 +693,41 @@ app.post('/api/media/migrate', requireAuth, async (_req, res) => {
     if (changed) doc[field] = next;
     return changed;
   };
+
+  // Media library items
+  for (const doc of mediaDocs) {
+    if (shouldSkip(doc.url)) continue;
+    const byName = mediaCloudMap.get(doc.filename || '');
+    if (byName) {
+      doc.url = byName;
+      await doc.save();
+      updated += 1;
+      continue;
+    }
+    try {
+      let newUrl = '';
+      if (doc.url && doc.url.startsWith('/assets')) {
+        const local = assetMap.get(doc.filename);
+        newUrl = local ? await uploadLocalFile(local) : await uploadUrl(doc.url);
+      } else if (doc.url && doc.url.startsWith('/uploads')) {
+        const local = assetMap.get(doc.filename);
+        if (local) {
+          newUrl = await uploadLocalFile(local);
+        } else {
+          newUrl = await uploadUrl(doc.url);
+        }
+      } else {
+        newUrl = await uploadUrl(doc.url);
+      }
+      if (newUrl) {
+        doc.url = newUrl;
+        await doc.save();
+        updated += 1;
+      }
+    } catch (err) {
+      failures.push({ field: 'media.url', value: doc.url, error: err?.message || 'upload failed' });
+    }
+  }
 
   // Settings images
   const settings = await Settings.findOne();
