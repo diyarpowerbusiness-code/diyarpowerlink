@@ -17,8 +17,24 @@ export const api = {
     if (!res.ok) throw new Error('Invalid credentials');
     return res.json();
   },
-  summary: () => fetch(`${base}/api/dashboard/summary`, { headers: authHeaders() }).then(r => r.json()),
-  list: (resource: string) => fetch(`${base}/api/${resource}`, { headers: authHeaders() }).then(r => r.json()),
+  summary: async () => {
+    const res = await fetch(`${base}/api/dashboard/summary`, {
+      headers: authHeaders(),
+      cache: 'no-store'
+    });
+    if (res.status === 304 || res.status === 204) return {};
+    if (!res.ok) throw new Error('Request failed');
+    return res.json();
+  },
+  list: async (resource: string) => {
+    const res = await fetch(`${base}/api/${resource}`, {
+      headers: authHeaders(),
+      cache: 'no-store'
+    });
+    if (res.status === 304 || res.status === 204) return [];
+    if (!res.ok) throw new Error('Request failed');
+    return res.json();
+  },
   create: (resource: string, data: any) => fetch(`${base}/api/${resource}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
