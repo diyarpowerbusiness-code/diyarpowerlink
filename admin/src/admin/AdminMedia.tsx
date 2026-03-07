@@ -114,9 +114,10 @@ export const AdminMedia = () => {
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900 mb-6">Media Library</h1>
-      <form onSubmit={upload} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-6">
-        <div className="flex flex-col md:flex-row md:items-center gap-4">
-          <label className="cursor-pointer border-2 border-dashed border-slate-200 rounded-xl px-4 py-4 text-sm text-slate-600 hover:border-blue-300 hover:bg-blue-50/40 transition-colors flex items-center gap-3">
+      <div className="max-w-4xl mx-auto">
+        <form onSubmit={upload} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="cursor-pointer border-2 border-dashed border-slate-200 rounded-xl px-4 py-4 text-sm text-slate-600 hover:border-blue-300 hover:bg-blue-50/40 transition-colors flex items-center gap-3 min-w-[240px] flex-1">
             <div className="h-10 w-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-semibold">
               +
             </div>
@@ -126,7 +127,7 @@ export const AdminMedia = () => {
             </div>
             <input type="file" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
           </label>
-          {file && <span className="text-xs text-slate-500">{file.name}</span>}
+          {file && <span className="text-xs text-slate-500 max-w-[200px] truncate">{file.name}</span>}
           <button className="bg-blue-600 text-white px-4 py-2 rounded-lg">Upload</button>
           <button type="button" onClick={importAssets} className="bg-slate-900 text-white px-4 py-2 rounded-lg">
             {importing ? 'Importing...' : 'Import Website Assets'}
@@ -164,28 +165,29 @@ export const AdminMedia = () => {
         {assignResult && (
           <div className="mt-2 text-sm text-indigo-700">{assignResult}</div>
         )}
-      </form>
-      <div className="space-y-2">
-        {items.map((item) => (
-          <div
-            key={item._id}
-            className="border border-slate-100 rounded-xl px-3 py-2 bg-white flex items-center gap-3"
-          >
-            <img
-              src={resolveImageUrl(item.url)}
-              alt={item.filename}
-              className="h-12 w-12 rounded-lg object-cover border border-slate-100"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-slate-700 truncate">{item.filename}</p>
-              <p className="text-xs text-slate-400 truncate">{item.url}</p>
+        </form>
+        <div className="space-y-2">
+          {items.map((item) => (
+            <div
+              key={item._id}
+              className="border border-slate-100 rounded-xl px-3 py-2 bg-white flex items-center gap-3"
+            >
+              <img
+                src={resolveImageUrl(item.url)}
+                alt={item.filename}
+                className="h-12 w-12 rounded-lg object-cover border border-slate-100"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-slate-700 truncate">{item.filename}</p>
+                <p className="text-xs text-slate-400 truncate">{item.url}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => copyUrl(resolveImageUrl(item.url))} className="text-xs text-blue-600">Copy URL</button>
+                <button onClick={() => remove(item._id)} className="text-xs text-red-600">Delete</button>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => copyUrl(resolveImageUrl(item.url))} className="text-xs text-blue-600">Copy URL</button>
-              <button onClick={() => remove(item._id)} className="text-xs text-red-600">Delete</button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

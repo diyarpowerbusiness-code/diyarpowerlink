@@ -116,7 +116,9 @@ export const AdminLayout = () => {
         </button>
       </aside>
       <main className="flex-1 p-6 lg:p-10">
-        <Outlet />
+        <div className="max-w-6xl mx-auto">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
