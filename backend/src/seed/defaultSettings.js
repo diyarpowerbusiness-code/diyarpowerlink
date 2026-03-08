@@ -10,6 +10,7 @@ export const defaultSettings = {
     'Technical Services & Support'
   ],
   socialLinks: { facebook: '', instagram: '', linkedin: '', twitter: '' },
+  socialVisibility: { facebook: true, instagram: true, linkedin: true, twitter: true },
   heroTitle: 'One Shop for\nAll IT Needs',
   heroSubtitle: 'Your Trusted Technology Partner',
   heroDescription: 'Diyar Power Link LLP is a multi-vertical trading and technology solutions provider delivering reliable supply, competitive pricing, and professional support across industries.',

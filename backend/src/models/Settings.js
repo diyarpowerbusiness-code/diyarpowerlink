@@ -37,6 +37,12 @@ const SettingsSchema = new mongoose.Schema(
       linkedin: { type: String, default: '' },
       twitter: { type: String, default: '' }
     },
+    socialVisibility: {
+      facebook: { type: Boolean, default: true },
+      instagram: { type: Boolean, default: true },
+      linkedin: { type: Boolean, default: true },
+      twitter: { type: Boolean, default: true }
+    },
     heroTitle: { type: String, default: '' },
     heroSubtitle: { type: String, default: '' },
     heroDescription: { type: String, default: '' },

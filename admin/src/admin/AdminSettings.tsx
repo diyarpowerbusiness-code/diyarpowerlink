@@ -17,6 +17,7 @@ export const AdminSettings = () => {
       'Technical Services & Support'
     ],
     socialLinks: { facebook: '', instagram: '', linkedin: '', twitter: '' },
+    socialVisibility: { facebook: true, instagram: true, linkedin: true, twitter: true },
     contactRecipient: ''
   });
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -30,7 +31,8 @@ export const AdminSettings = () => {
           setForm((prev: any) => ({
             ...prev,
             ...data,
-            socialLinks: { ...prev.socialLinks, ...(data.socialLinks || {}) }
+            socialLinks: { ...prev.socialLinks, ...(data.socialLinks || {}) },
+            socialVisibility: { ...prev.socialVisibility, ...(data.socialVisibility || {}) }
           }));
         }
       })
@@ -55,6 +57,7 @@ export const AdminSettings = () => {
           footerText: form.footerText,
           footerDivisions: form.footerDivisions,
           socialLinks: form.socialLinks,
+          socialVisibility: form.socialVisibility,
           contactRecipient: form.contactRecipient
         })
       });
@@ -70,6 +73,7 @@ export const AdminSettings = () => {
       websiteName: '',
       logo: '',
       socialLinks: { facebook: '', instagram: '', linkedin: '', twitter: '' },
+      socialVisibility: { facebook: true, instagram: true, linkedin: true, twitter: true },
       contactRecipient: ''
     });
   };
@@ -124,11 +128,40 @@ export const AdminSettings = () => {
           {section === 'Social' && (
             <>
               <h2 className="text-lg font-semibold text-slate-800">Social Links</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <input placeholder="Facebook" value={form.socialLinks?.facebook || ''} onChange={(e) => setForm({ ...form, socialLinks: { ...form.socialLinks, facebook: e.target.value } })} className="border border-slate-200 rounded-xl px-3 py-2" />
-                <input placeholder="Instagram" value={form.socialLinks?.instagram || ''} onChange={(e) => setForm({ ...form, socialLinks: { ...form.socialLinks, instagram: e.target.value } })} className="border border-slate-200 rounded-xl px-3 py-2" />
-                <input placeholder="LinkedIn" value={form.socialLinks?.linkedin || ''} onChange={(e) => setForm({ ...form, socialLinks: { ...form.socialLinks, linkedin: e.target.value } })} className="border border-slate-200 rounded-xl px-3 py-2" />
-                <input placeholder="Twitter" value={form.socialLinks?.twitter || ''} onChange={(e) => setForm({ ...form, socialLinks: { ...form.socialLinks, twitter: e.target.value } })} className="border border-slate-200 rounded-xl px-3 py-2" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {[
+                  { key: 'facebook', label: 'Facebook' },
+                  { key: 'instagram', label: 'Instagram' },
+                  { key: 'linkedin', label: 'LinkedIn' },
+                  { key: 'twitter', label: 'Twitter' }
+                ].map((item) => (
+                  <div key={item.key} className="border border-slate-200 rounded-xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold text-slate-700">{item.label}</p>
+                      <label className="flex items-center gap-2 text-xs text-slate-600">
+                        <input
+                          type="checkbox"
+                          checked={form.socialVisibility?.[item.key] ?? true}
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              socialVisibility: { ...form.socialVisibility, [item.key]: e.target.checked }
+                            })
+                          }
+                        />
+                        Show on site
+                      </label>
+                    </div>
+                    <input
+                      placeholder={`${item.label} URL`}
+                      value={form.socialLinks?.[item.key] || ''}
+                      onChange={(e) =>
+                        setForm({ ...form, socialLinks: { ...form.socialLinks, [item.key]: e.target.value } })
+                      }
+                      className="w-full border border-slate-200 rounded-xl px-3 py-2"
+                    />
+                  </div>
+                ))}
               </div>
             </>
           )}

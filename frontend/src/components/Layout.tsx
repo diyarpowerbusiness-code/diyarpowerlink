@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Phone, Mail, ChevronDown, MapPin } from 'lucide-react';
+import { Menu, X, Phone, Mail, ChevronDown, MapPin, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 import { COMPANY_NAME } from '../constants';
 import { API_BASE } from '../api';
 import { resolveImageUrl } from '../utils/media';
@@ -225,6 +225,14 @@ export const Footer = () => {
   const logoUrl = rawLogo.includes('/uploads/') ? resolveImageUrl(fallbackLogo) : resolveImageUrl(rawLogo || fallbackLogo);
   const mapQuery = encodeURIComponent(settings.contactAddress || 'Mahabubnagar, Telangana, India');
   const mapLink = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
+  const socialLinks = settings.socialLinks || {};
+  const socialVisibility = settings.socialVisibility || {};
+  const socialItems = [
+    { key: 'facebook', label: 'Facebook', icon: Facebook, url: socialLinks.facebook },
+    { key: 'instagram', label: 'Instagram', icon: Instagram, url: socialLinks.instagram },
+    { key: 'linkedin', label: 'LinkedIn', icon: Linkedin, url: socialLinks.linkedin },
+    { key: 'twitter', label: 'Twitter', icon: Twitter, url: socialLinks.twitter }
+  ].filter((item) => item.url && (socialVisibility[item.key] ?? true));
 
   return (
     <footer className="bg-primary text-white pt-16 pb-8">
@@ -317,6 +325,29 @@ export const Footer = () => {
                 </a>
               </li>
             </ul>
+            {socialItems.length > 0 && (
+              <div className="mt-6">
+                <p className="text-sm font-semibold text-slate-300 mb-3">Follow Us</p>
+                <div className="flex items-center gap-3">
+                  {socialItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <a
+                        key={item.key}
+                        href={item.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-9 h-9 rounded-full bg-slate-800/70 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center justify-center transition-colors"
+                        aria-label={item.label}
+                        title={item.label}
+                      >
+                        <Icon size={16} />
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
         
