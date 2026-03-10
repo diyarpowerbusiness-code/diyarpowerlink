@@ -1,0 +1,106 @@
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { PRODUCT_CATEGORIES, PRODUCTS } from '../constants';
+import { CatalogProductCard, SectionHeader } from '../components/UI';
+import { ArrowLeft } from 'lucide-react';
+import { API_BASE } from '../api';
+import { resolveImageUrl } from '../utils/media';
+
+export const PosBarcodeProducts = () => {
+  const [category, setCategory] = useState<any>(
+    PRODUCT_CATEGORIES.find((c) => {
+      const slug = String(c.slug || '').toLowerCase();
+      const title = String(c.title || '').toLowerCase();
+      return (
+        slug === 'pos-barcode-products' ||
+        slug === 'pos-paper-roll-and-barcode-labels' ||
+        (slug.includes('pos') && slug.includes('barcode')) ||
+        (title.includes('pos') && title.includes('barcode'))
+      );
+    })
+  );
+  const [products, setProducts] = useState<any[]>(PRODUCTS);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/products`)
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && data.length > 0 && setProducts(data))
+      .catch(() => null);
+    fetch(`${API_BASE}/api/categories`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const found = data.find((c: any) => {
+            const slug = String(c.slug || '').toLowerCase();
+            const name = String(c.name || c.title || '').toLowerCase();
+            return (
+              slug === 'pos-barcode-products' ||
+              slug === 'pos-paper-roll-and-barcode-labels' ||
+              (slug.includes('pos') && slug.includes('barcode')) ||
+              (name.includes('pos') && name.includes('barcode'))
+            );
+          });
+          if (found) setCategory(found);
+        }
+      })
+      .catch(() => null);
+  }, []);
+
+  if (!category) {
+    return (
+      <div className="pt-24 min-h-screen bg-slate-50">
+        <section className="py-24">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-3xl md:text-4xl font-display font-bold text-primary mb-4">Category Not Found</h1>
+            <p className="text-slate-600 mb-8">
+              The POS Paper Roll and Barcode Labels category is not available yet.
+            </p>
+            <Link
+              to="/products"
+              className="inline-flex items-center bg-primary text-white px-6 py-3 rounded-full font-semibold hover:bg-slate-800 transition-all"
+            >
+              Back to Categories
+            </Link>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  const categoryName = category?.title || category?.name;
+  const categoryProducts = products.filter((p) => p.category === categoryName);
+
+  return (
+    <div className="pt-24 min-h-screen bg-slate-50">
+      {/* Header */}
+      <section className="bg-primary py-12 md:py-16 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <img src={resolveImageUrl(category.image)} alt={category.title} className="w-full h-full object-cover" />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <Link to="/products" className="inline-flex items-center text-sm text-slate-300 hover:text-white mb-6">
+            <ArrowLeft size={16} className="mr-2" />
+            Back to Categories
+          </Link>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-3">{category.title || category.name}</h1>
+          <p className="text-base sm:text-lg text-slate-300 max-w-2xl">{category.description}</p>
+        </div>
+      </section>
+
+      {/* Grid */}
+      <section className="py-16 bg-grid">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title={`${category.title || category.name} Products`}
+            subtitle="Explore the full range of products in this category."
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {categoryProducts.map((product) => (
+              <CatalogProductCard key={product._id || product.id} product={product} />
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
