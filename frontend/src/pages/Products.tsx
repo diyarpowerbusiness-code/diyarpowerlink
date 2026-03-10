@@ -32,6 +32,16 @@ export const Products = () => {
   }, []);
 
   const productsPage = settings.productsPage || {};
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash) return;
+    const el = document.querySelector(hash);
+    if (!el) return;
+    const timer = window.setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 200);
+    return () => window.clearTimeout(timer);
+  }, [categories.length]);
   const isPosBarcodeCategory = (category: any) => {
     const name = String(category?.name || '').toLowerCase();
     const slug = String(category?.slug || '').toLowerCase();
