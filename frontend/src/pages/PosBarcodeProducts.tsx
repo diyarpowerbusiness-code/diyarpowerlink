@@ -51,15 +51,11 @@ export const PosBarcodeProducts = () => {
             title="POS Paper Roll and Barcode Labels"
             subtitle="Explore the full range of products in this section."
           />
-          {categoryProducts.length === 0 ? (
-            <div className="text-center text-slate-600 font-medium py-12">Products coming soon.</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {categoryProducts.map((product) => (
-                <CatalogProductCard key={product._id || product.id} product={product} />
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {categoryProducts.map((product) => (
+              <CatalogProductCard key={product._id || product.id} product={product} />
+            ))}
+          </div>
         </div>
       </section>
     </div>
