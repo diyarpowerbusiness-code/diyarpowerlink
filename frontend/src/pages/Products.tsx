@@ -35,12 +35,24 @@ export const Products = () => {
   useEffect(() => {
     const hash = window.location.hash;
     if (!hash) return;
-    const el = document.querySelector(hash);
-    if (!el) return;
-    const timer = window.setTimeout(() => {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 200);
-    return () => window.clearTimeout(timer);
+    let attempts = 0;
+    const maxAttempts = 20;
+    const tryScroll = () => {
+      const el = document.querySelector(hash) as HTMLElement | null;
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return true;
+      }
+      return false;
+    };
+    if (tryScroll()) return;
+    const interval = window.setInterval(() => {
+      attempts += 1;
+      if (tryScroll() || attempts >= maxAttempts) {
+        window.clearInterval(interval);
+      }
+    }, 100);
+    return () => window.clearInterval(interval);
   }, [categories.length]);
   const isPosBarcodeCategory = (category: any) => {
     const name = String(category?.name || '').toLowerCase();
