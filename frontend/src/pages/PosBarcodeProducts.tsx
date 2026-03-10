@@ -17,7 +17,7 @@ export const PosBarcodeProducts = () => {
 
   const categoryProducts = products.filter((p) => {
     const value = String(p.category || '').toLowerCase();
-    return value === 'pos paper roll' || value === 'barcode labels';
+    return value === 'paper products' || value === 'thermal labels';
   });
 
   return (
