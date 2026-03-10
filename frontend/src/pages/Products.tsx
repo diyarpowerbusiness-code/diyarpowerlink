@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { PRODUCT_CATEGORIES } from '../constants';
 import { SectionHeader } from '../components/UI';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { API_BASE } from '../api';
 import { getCategoryFallbackImage, resolveImageUrl } from '../utils/media';
 
@@ -13,7 +13,6 @@ export const Products = () => {
     image: c.image
   })));
   const [settings, setSettings] = useState<any>({});
-  const location = useLocation();
 
   useEffect(() => {
     fetch(`${API_BASE}/api/categories`)
@@ -44,18 +43,6 @@ export const Products = () => {
     );
   };
 
-  useEffect(() => {
-    if (location.hash !== '#pos-barcode-products') return;
-    const el = document.getElementById('pos-barcode-products');
-    if (!el) return;
-    const scrollToTarget = () => {
-      const top = el.getBoundingClientRect().top + window.scrollY - 100;
-      window.scrollTo({ top, behavior: 'smooth' });
-    };
-    const timer = window.setTimeout(scrollToTarget, 50);
-    return () => window.clearTimeout(timer);
-  }, [location.hash, categories.length]);
-
   return (
     <div className="pt-24 min-h-screen bg-slate-50">
       {/* Header */}
@@ -81,41 +68,49 @@ export const Products = () => {
             subtitle={productsPage.sectionSubtitle || 'Select a category to view products in a clean, structured grid.'}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((category) => (
-              <div
-                key={category.slug}
-                id={isPosBarcodeCategory(category) ? 'pos-barcode-products' : undefined}
-                className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col"
-              >
-                <div className="aspect-[4/3] overflow-hidden bg-white">
-                  {(() => {
-                    const fallback = getCategoryFallbackImage(category.name);
-                    const src = resolveImageUrl(category.image || fallback);
-                    return (
-                  <img
-                    src={src}
-                    alt={category.name}
-                    className="w-full h-full object-cover object-center"
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = fallback;
-                    }}
-                  />
-                    );
-                  })()}
+            {categories.map((category) => {
+              const card = (
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+                  <div className="aspect-[4/3] overflow-hidden bg-white">
+                    {(() => {
+                      const fallback = getCategoryFallbackImage(category.name);
+                      const src = resolveImageUrl(category.image || fallback);
+                      return (
+                        <img
+                          src={src}
+                          alt={category.name}
+                          className="w-full h-full object-cover object-center"
+                          loading="lazy"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = fallback;
+                          }}
+                        />
+                      );
+                    })()}
+                  </div>
+                  <div className="p-5 flex flex-col flex-grow">
+                    <h3 className="text-xl font-display font-bold text-primary mb-2">{category.name}</h3>
+                    <p className="text-slate-600 text-sm mb-6 flex-grow">{category.description}</p>
+                    <Link
+                      to={`/products/category/${category.slug}`}
+                      className="inline-flex items-center justify-center bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 transition-all"
+                    >
+                      View Products
+                    </Link>
+                  </div>
                 </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <h3 className="text-xl font-display font-bold text-primary mb-2">{category.name}</h3>
-                  <p className="text-slate-600 text-sm mb-6 flex-grow">{category.description}</p>
-                  <Link
-                    to={`/products/category/${category.slug}`}
-                    className="inline-flex items-center justify-center bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 transition-all"
-                  >
-                    View Products
-                  </Link>
-                </div>
-              </div>
-            ))}
+              );
+
+              if (isPosBarcodeCategory(category)) {
+                return (
+                  <div key={`${category.slug}-anchor`} id="pos-barcode-products" className="contents">
+                    {card}
+                  </div>
+                );
+              }
+
+              return <React.Fragment key={category.slug}>{card}</React.Fragment>;
+            })}
           </div>
         </div>
       </section>
