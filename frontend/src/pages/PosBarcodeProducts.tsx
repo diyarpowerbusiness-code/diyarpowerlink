@@ -15,7 +15,9 @@ export const PosBarcodeProducts = () => {
         slug === 'pos-barcode-products' ||
         slug === 'pos-paper-roll-and-barcode-labels' ||
         (slug.includes('pos') && slug.includes('barcode')) ||
-        (title.includes('pos') && title.includes('barcode'))
+        (title.includes('pos') && title.includes('barcode')) ||
+        (title.includes('paper roll') && title.includes('barcode')) ||
+        (title.includes('paper roll') && title.includes('label'))
       );
     })
   );
@@ -37,7 +39,9 @@ export const PosBarcodeProducts = () => {
               slug === 'pos-barcode-products' ||
               slug === 'pos-paper-roll-and-barcode-labels' ||
               (slug.includes('pos') && slug.includes('barcode')) ||
-              (name.includes('pos') && name.includes('barcode'))
+              (name.includes('pos') && name.includes('barcode')) ||
+              (name.includes('paper roll') && name.includes('barcode')) ||
+              (name.includes('paper roll') && name.includes('label'))
             );
           });
           if (found) setCategory(found);
@@ -46,7 +50,20 @@ export const PosBarcodeProducts = () => {
       .catch(() => null);
   }, []);
 
-  if (!category) {
+  const categoryName = category?.title || category?.name || 'POS Paper Roll and Barcode Labels';
+  const categoryNameLower = String(categoryName).toLowerCase();
+  const categoryProducts = products.filter((p) => {
+    const value = String(p.category || '').toLowerCase();
+    if (!value) return false;
+    if (value === categoryNameLower) return true;
+    return (
+      value.includes('pos') && value.includes('barcode')
+    ) || (
+      value.includes('paper roll') && (value.includes('barcode') || value.includes('label'))
+    );
+  });
+
+  if (!category && categoryProducts.length === 0) {
     return (
       <div className="pt-24 min-h-screen bg-slate-50">
         <section className="py-24">
@@ -67,23 +84,31 @@ export const PosBarcodeProducts = () => {
     );
   }
 
-  const categoryName = category?.title || category?.name;
-  const categoryProducts = products.filter((p) => p.category === categoryName);
-
   return (
     <div className="pt-24 min-h-screen bg-slate-50">
       {/* Header */}
       <section className="bg-primary py-12 md:py-16 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <img src={resolveImageUrl(category.image)} alt={category.title} className="w-full h-full object-cover" />
+          {category?.image ? (
+            <img src={resolveImageUrl(category.image)} alt={category.title} className="w-full h-full object-cover" />
+          ) : (
+            <img
+              src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80"
+              alt="POS barcode products"
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          )}
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <Link to="/products" className="inline-flex items-center text-sm text-slate-300 hover:text-white mb-6">
             <ArrowLeft size={16} className="mr-2" />
             Back to Categories
           </Link>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-3">{category.title || category.name}</h1>
-          <p className="text-base sm:text-lg text-slate-300 max-w-2xl">{category.description}</p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-3">{category.title || category.name || 'POS Paper Roll and Barcode Labels'}</h1>
+          <p className="text-base sm:text-lg text-slate-300 max-w-2xl">
+            {category.description || 'Explore POS paper rolls, barcode labels, and related supplies for retail and enterprise operations.'}
+          </p>
         </div>
       </section>
 
