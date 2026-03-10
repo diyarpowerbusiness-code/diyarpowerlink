@@ -52,15 +52,22 @@ export const PosBarcodeProducts = () => {
 
   const categoryName = category?.title || category?.name || 'POS Paper Roll and Barcode Labels';
   const categoryNameLower = String(categoryName).toLowerCase();
+  const keywordMatch = (input: string) => {
+    const value = input.toLowerCase();
+    if (value.includes('pos') && value.includes('barcode')) return true;
+    if (value.includes('paper roll') && (value.includes('barcode') || value.includes('label'))) return true;
+    if (value.includes('thermal') && (value.includes('roll') || value.includes('label'))) return true;
+    if (value.includes('barcode label') || value.includes('barcode labels')) return true;
+    return false;
+  };
   const categoryProducts = products.filter((p) => {
-    const value = String(p.category || '').toLowerCase();
-    if (!value) return false;
-    if (value === categoryNameLower) return true;
-    return (
-      value.includes('pos') && value.includes('barcode')
-    ) || (
-      value.includes('paper roll') && (value.includes('barcode') || value.includes('label'))
-    );
+    const categoryValue = String(p.category || '').toLowerCase();
+    const normalizedCategory = categoryValue.replace(/[-_]/g, ' ');
+    if (categoryValue === categoryNameLower) return true;
+    if (keywordMatch(categoryValue) || keywordMatch(normalizedCategory)) return true;
+    const nameValue = String(p.name || '').toLowerCase();
+    const descValue = String(p.description || '').toLowerCase();
+    return keywordMatch(nameValue) || keywordMatch(descValue);
   });
 
   if (!category && categoryProducts.length === 0) {
