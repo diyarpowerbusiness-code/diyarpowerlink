@@ -1,36 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PRODUCT_CATEGORIES, PRODUCTS } from '../constants';
+import { PRODUCTS } from '../constants';
 import { CatalogProductCard, SectionHeader } from '../components/UI';
 import { ArrowLeft } from 'lucide-react';
 import { API_BASE } from '../api';
-import { resolveImageUrl } from '../utils/media';
 
 export const PosBarcodeProducts = () => {
-  const [category, setCategory] = useState<any>(
-    PRODUCT_CATEGORIES.find((c) => {
-      const title = String(c.title || c.name || '').toLowerCase();
-      return title.includes('pos') || title.includes('barcode') || title.includes('paper roll');
-    })
-  );
   const [products, setProducts] = useState<any[]>(PRODUCTS);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/products`)
       .then((r) => r.json())
       .then((data) => Array.isArray(data) && data.length > 0 && setProducts(data))
-      .catch(() => null);
-    fetch(`${API_BASE}/api/categories`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          const found = data.find((c: any) => {
-            const name = String(c.name || c.title || '').toLowerCase();
-            return name.includes('pos') || name.includes('barcode') || name.includes('paper roll');
-          });
-          if (found) setCategory(found);
-        }
-      })
       .catch(() => null);
   }, []);
 
@@ -45,7 +26,7 @@ export const PosBarcodeProducts = () => {
       <section className="bg-primary py-12 md:py-16 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <img
-            src={resolveImageUrl(category?.image || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80')}
+            src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80"
             alt="POS barcode products"
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
@@ -58,7 +39,7 @@ export const PosBarcodeProducts = () => {
           </Link>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-3">POS Paper Roll and Barcode Labels</h1>
           <p className="text-base sm:text-lg text-slate-300 max-w-2xl">
-            {category?.description || 'Explore POS paper rolls, barcode labels, and related supplies for retail and enterprise operations.'}
+            Explore POS paper rolls, barcode labels, and related supplies for retail and enterprise operations.
           </p>
         </div>
       </section>
