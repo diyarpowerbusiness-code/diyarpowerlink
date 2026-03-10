@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { PRODUCT_CATEGORIES } from '../constants';
 import { SectionHeader } from '../components/UI';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { API_BASE } from '../api';
 import { getCategoryFallbackImage, resolveImageUrl } from '../utils/media';
 
@@ -13,6 +13,7 @@ export const Products = () => {
     image: c.image
   })));
   const [settings, setSettings] = useState<any>({});
+  const location = useLocation();
 
   useEffect(() => {
     fetch(`${API_BASE}/api/categories`)
@@ -32,6 +33,28 @@ export const Products = () => {
   }, []);
 
   const productsPage = settings.productsPage || {};
+  const isPosBarcodeCategory = (category: any) => {
+    const name = String(category?.name || '').toLowerCase();
+    const slug = String(category?.slug || '').toLowerCase();
+    return (
+      slug === 'pos-barcode-products' ||
+      slug === 'pos-paper-roll-and-barcode-labels' ||
+      (name.includes('pos') && name.includes('barcode')) ||
+      (name.includes('paper roll') && name.includes('barcode'))
+    );
+  };
+
+  useEffect(() => {
+    if (location.hash !== '#pos-barcode-products') return;
+    const el = document.getElementById('pos-barcode-products');
+    if (!el) return;
+    const scrollToTarget = () => {
+      const top = el.getBoundingClientRect().top + window.scrollY - 100;
+      window.scrollTo({ top, behavior: 'smooth' });
+    };
+    const timer = window.setTimeout(scrollToTarget, 50);
+    return () => window.clearTimeout(timer);
+  }, [location.hash, categories.length]);
 
   return (
     <div className="pt-24 min-h-screen bg-slate-50">
@@ -61,6 +84,7 @@ export const Products = () => {
             {categories.map((category) => (
               <div
                 key={category.slug}
+                id={isPosBarcodeCategory(category) ? 'pos-barcode-products' : undefined}
                 className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col"
               >
                 <div className="aspect-[4/3] overflow-hidden bg-white">
