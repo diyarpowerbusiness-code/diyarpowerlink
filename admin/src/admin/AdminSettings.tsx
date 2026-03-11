@@ -18,7 +18,8 @@ export const AdminSettings = () => {
     ],
     socialLinks: { facebook: '', instagram: '', linkedin: '', twitter: '' },
     socialVisibility: { facebook: true, instagram: true, linkedin: true, twitter: true },
-    contactRecipient: ''
+    contactRecipient: '',
+    posBarcodeCategories: 'Paper Products, Thermal Labels'
   });
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [seedState, setSeedState] = useState<'idle' | 'seeding' | 'done' | 'error'>('idle');
@@ -32,7 +33,10 @@ export const AdminSettings = () => {
             ...prev,
             ...data,
             socialLinks: { ...prev.socialLinks, ...(data.socialLinks || {}) },
-            socialVisibility: { ...prev.socialVisibility, ...(data.socialVisibility || {}) }
+            socialVisibility: { ...prev.socialVisibility, ...(data.socialVisibility || {}) },
+            posBarcodeCategories: Array.isArray(data.posBarcodeCategories)
+              ? data.posBarcodeCategories.join(', ')
+              : (data.posBarcodeCategories || prev.posBarcodeCategories)
           }));
         }
       })
@@ -58,7 +62,11 @@ export const AdminSettings = () => {
           footerDivisions: form.footerDivisions,
           socialLinks: form.socialLinks,
           socialVisibility: form.socialVisibility,
-          contactRecipient: form.contactRecipient
+          contactRecipient: form.contactRecipient,
+          posBarcodeCategories: String(form.posBarcodeCategories || '')
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
         })
       });
       setSaveState(res.ok ? 'saved' : 'error');
@@ -74,7 +82,8 @@ export const AdminSettings = () => {
       logo: '',
       socialLinks: { facebook: '', instagram: '', linkedin: '', twitter: '' },
       socialVisibility: { facebook: true, instagram: true, linkedin: true, twitter: true },
-      contactRecipient: ''
+      contactRecipient: '',
+      posBarcodeCategories: ''
     });
   };
 
@@ -92,7 +101,7 @@ export const AdminSettings = () => {
     <div>
       <h1 className="text-2xl font-bold text-slate-900 mb-6">Settings</h1>
       <div className="flex flex-wrap gap-2 mb-6">
-        {(['Brand', 'Social', 'Contact', 'Admin Users'] as const).map((item) => (
+      {(['Brand', 'Social', 'Contact', 'POS Barcode', 'Admin Users'] as const).map((item) => (
           <button
             key={item}
             type="button"
@@ -173,6 +182,18 @@ export const AdminSettings = () => {
                 placeholder="Recipient Email"
                 value={form.contactRecipient || ''}
                 onChange={(e) => setForm({ ...form, contactRecipient: e.target.value })}
+                className="border border-slate-200 rounded-xl px-3 py-2"
+              />
+            </>
+          )}
+          {section === 'POS Barcode' && (
+            <>
+              <h2 className="text-lg font-semibold text-slate-800">POS Barcode Products</h2>
+              <p className="text-sm text-slate-500">Comma-separated category names to show on /pos-barcode-products.</p>
+              <input
+                placeholder="e.g. Paper Products, Thermal Labels"
+                value={form.posBarcodeCategories || ''}
+                onChange={(e) => setForm({ ...form, posBarcodeCategories: e.target.value })}
                 className="border border-slate-200 rounded-xl px-3 py-2"
               />
             </>

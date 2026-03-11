@@ -163,5 +163,6 @@ export const defaultSettings = {
     heroSubtitle: 'Explore our professional B2B catalog organized by category for quick selection and procurement.',
     sectionTitle: 'Browse by Category',
     sectionSubtitle: 'Select a category to view products in a clean, structured grid.'
-  }
+  },
+  posBarcodeCategories: ['Paper Products', 'Thermal Labels']
 };

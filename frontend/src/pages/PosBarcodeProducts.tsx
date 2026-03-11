@@ -9,17 +9,26 @@ import { resolveImageUrl, getCategoryFallbackImage } from '../utils/media';
 
 export const PosBarcodeProducts = () => {
   const [products, setProducts] = useState<any[]>(PRODUCTS);
+  const [settings, setSettings] = useState<any>({});
 
   useEffect(() => {
     fetch(`${API_BASE}/api/products`)
       .then((r) => r.json())
       .then((data) => Array.isArray(data) && data.length > 0 && setProducts(data))
       .catch(() => null);
+    fetch(`${API_BASE}/api/settings`)
+      .then((r) => r.json())
+      .then((data) => data && Object.keys(data).length > 0 && setSettings(data))
+      .catch(() => null);
   }, []);
+
+  const selectedCategories = Array.isArray(settings.posBarcodeCategories) && settings.posBarcodeCategories.length > 0
+    ? settings.posBarcodeCategories.map((c: string) => c.toLowerCase())
+    : ['paper products', 'thermal labels'];
 
   const categoryProducts = products.filter((p) => {
     const value = String(p.category || '').toLowerCase();
-    return value === 'paper products' || value === 'thermal labels';
+    return selectedCategories.includes(value);
   });
 
   const PosProductCard = ({ product }: { product: any }) => {

@@ -140,7 +140,8 @@ const SettingsSchema = new mongoose.Schema(
       heroSubtitle: { type: String, default: '' },
       sectionTitle: { type: String, default: '' },
       sectionSubtitle: { type: String, default: '' }
-    }
+    },
+    posBarcodeCategories: { type: [String], default: [] }
   },
   { timestamps: true }
 );
