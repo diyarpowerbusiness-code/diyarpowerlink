@@ -4,7 +4,12 @@ export interface Product {
   category: string;
   description: string;
   image: string;
+  images?: string[];
   features?: string[];
+  sku?: string;
+  price?: number;
+  barcodeValue?: string;
+  barcodeFormat?: string;
 }
 
 export interface Service {

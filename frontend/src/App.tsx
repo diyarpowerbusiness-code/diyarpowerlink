@@ -7,6 +7,7 @@ import { Products } from './pages/Products';
 import { CategoryPage } from './pages/CategoryPage';
 import { ProductDetail } from './pages/ProductDetail';
 import { PosBarcodeProducts } from './pages/PosBarcodeProducts';
+import { PosLabel } from './pages/PosLabel';
 import { Services } from './pages/Services';
 import { Contact } from './pages/Contact';
 import { pingApi } from './api';
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="about" element={<About />} />
           <Route path="products" element={<Products />} />
           <Route path="pos-barcode-products" element={<PosBarcodeProducts />} />
+          <Route path="pos-label" element={<PosLabel />} />
           <Route path="products/category/:categorySlug" element={<CategoryPage />} />
           <Route path="products/:productId" element={<ProductDetail />} />
           <Route path="services" element={<Services />} />

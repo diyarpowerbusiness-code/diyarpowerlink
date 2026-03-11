@@ -3,7 +3,7 @@ import { api } from './api';
 import { UploadField } from './UploadField';
 import { resolveImageUrl } from './resolveImage';
 
-const empty = { name: '', category: '', description: '', features: '', images: '', status: 'active' };
+const empty = { name: '', category: '', description: '', features: '', images: '', status: 'active', price: '', sku: '' };
 
 export const AdminProducts = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -44,7 +44,8 @@ export const AdminProducts = () => {
     const payload = {
       ...form,
       features: splitList(form.features || ''),
-      images: normalizeImages(form.images || '')
+      images: normalizeImages(form.images || ''),
+      price: form.price === '' ? 0 : Number(form.price)
     };
     setSaveState('saving');
     try {
@@ -66,6 +67,8 @@ export const AdminProducts = () => {
       name: p.name,
       category: p.category,
       description: p.description,
+      price: p.price ?? '',
+      sku: p.sku ?? '',
       features: (p.features || []).join(', '),
       images: imagesVal,
       status: p.status || 'active'
@@ -141,6 +144,10 @@ export const AdminProducts = () => {
           <input placeholder="Category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2" required />
         )}
           <textarea placeholder="Short Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2" required />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input placeholder="SKU / Product Code" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2" />
+            <input type="number" min="0" step="0.01" placeholder="Price" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2" />
+          </div>
           <textarea rows={3} placeholder="Key Features (comma or new line separated)" value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2" />
           <UploadField label="Product Image" value={form.images} onChange={(val) => setForm({ ...form, images: val })} onUploadingChange={setUploadingImage} />
           <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2">
@@ -183,10 +190,21 @@ export const AdminProducts = () => {
                         </div>
                         <p className="font-semibold text-slate-900">{p.name}</p>
                         <p className="text-xs text-slate-500 mb-2">{p.category}</p>
+                        <p className="text-xs text-slate-500 mb-1">SKU: {p.sku || '-'}</p>
+                        <p className="text-xs text-slate-500 mb-3">Price: {p.price !== undefined ? `₹${p.price}` : '-'}</p>
                         <p className="text-sm text-slate-600 mb-3">{p.description}</p>
                         <div className="flex gap-2">
                           <button onClick={() => edit(p)} className="text-sm text-blue-600">Edit</button>
                           <button onClick={() => remove(p._id)} className="text-sm text-red-600">Delete</button>
+                          <button
+                            onClick={() => {
+                              const base = (import.meta as any).env?.VITE_PUBLIC_SITE_URL || window.location.origin;
+                              window.open(`${base}/pos-label?productId=${p._id}`, '_blank');
+                            }}
+                            className="text-sm text-slate-700"
+                          >
+                            View POS Label
+                          </button>
                         </div>
                       </div>
                     ))}

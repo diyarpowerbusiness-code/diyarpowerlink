@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PRODUCTS } from '../constants';
-import { CatalogProductCard, SectionHeader } from '../components/UI';
+import { SectionHeader } from '../components/UI';
 import { ArrowLeft } from 'lucide-react';
 import { API_BASE } from '../api';
+import JsBarcode from 'jsbarcode';
+import { resolveImageUrl, getCategoryFallbackImage } from '../utils/media';
 
 export const PosBarcodeProducts = () => {
   const [products, setProducts] = useState<any[]>(PRODUCTS);
@@ -19,6 +21,68 @@ export const PosBarcodeProducts = () => {
     const value = String(p.category || '').toLowerCase();
     return value === 'paper products' || value === 'thermal labels';
   });
+
+  const PosProductCard = ({ product }: { product: any }) => {
+    const svgRef = useRef<SVGSVGElement | null>(null);
+    const barcodeValue = product.sku || product.barcodeValue || product._id || product.id || '';
+    useEffect(() => {
+      if (!svgRef.current || !barcodeValue) return;
+      try {
+        JsBarcode(svgRef.current, String(barcodeValue), {
+          format: 'CODE128',
+          displayValue: false,
+          height: 50,
+          width: 2,
+          margin: 0
+        });
+      } catch {
+        // ignore render errors
+      }
+    }, [barcodeValue]);
+
+    const rawImage = product.image || product.images?.[0] || getCategoryFallbackImage(product.category);
+    const image = resolveImageUrl(rawImage);
+    const isDocxImage = String(rawImage).startsWith('/assets/docx/');
+
+    return (
+      <div className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
+        <div className={`aspect-[4/3] overflow-hidden ${isDocxImage ? 'bg-white' : ''}`}>
+          <img
+            src={image}
+            alt={product.name}
+            className={`w-full h-full ${isDocxImage ? 'object-cover object-top scale-105' : 'object-cover'}`}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+          />
+        </div>
+        <div className="p-6 flex flex-col flex-grow">
+          <h3 className="text-lg font-display font-bold text-primary mb-2">{product.name}</h3>
+          <p className="text-sm text-slate-600 mb-3 flex-grow">{product.description}</p>
+          <div className="text-xs text-slate-500 space-y-1 mb-4">
+            <div>Price: <span className="font-semibold text-slate-700">₹{product.price ?? 0}</span></div>
+            <div>SKU: <span className="font-semibold text-slate-700">{product.sku || product._id || '-'}</span></div>
+          </div>
+          <div className="border border-slate-200 rounded-lg p-2 flex items-center justify-center mb-4 bg-white">
+            <svg ref={svgRef} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Link
+              to={`/products/${product._id || product.id}`}
+              className="py-2.5 rounded-lg text-sm font-semibold text-primary border border-slate-200 hover:bg-slate-50 transition-colors text-center"
+            >
+              Learn More
+            </Link>
+            <Link
+              to={`/pos-label?productId=${product._id || product.id}`}
+              className="py-2.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors text-center"
+            >
+              View Barcode Label
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="pt-24 min-h-screen bg-slate-50">
@@ -53,7 +117,7 @@ export const PosBarcodeProducts = () => {
           />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {categoryProducts.map((product) => (
-              <CatalogProductCard key={product._id || product.id} product={product} />
+              <PosProductCard key={product._id || product.id} product={product} />
             ))}
           </div>
         </div>

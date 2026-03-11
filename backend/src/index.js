@@ -229,9 +229,63 @@ app.delete('/api/categories/:id', requireAuth, async (req, res) => {
 });
 
 // Products CRUD (public GET)
-app.get('/api/products', async (_req, res) => res.json(await Product.find().sort({ createdAt: -1 })));
-app.post('/api/products', requireAuth, async (req, res) => res.json(await Product.create(req.body)));
-app.put('/api/products/:id', requireAuth, async (req, res) => res.json(await Product.findByIdAndUpdate(req.params.id, req.body, { new: true })));
+app.get('/api/products', async (_req, res) => {
+  const products = await Product.find().sort({ createdAt: -1 });
+  for (const product of products) {
+    let changed = false;
+    if (!product.sku) {
+      product.sku = String(product._id);
+      changed = true;
+    }
+    if (!product.barcodeValue) {
+      product.barcodeValue = product.sku || String(product._id);
+      product.barcodeFormat = 'CODE128';
+      changed = true;
+    }
+    if (changed) await product.save();
+  }
+  res.json(products);
+});
+app.get('/api/products/:id', async (req, res) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) return res.status(404).json({ error: 'Not found' });
+  let changed = false;
+  if (!product.sku) {
+    product.sku = String(product._id);
+    changed = true;
+  }
+  if (!product.barcodeValue) {
+    product.barcodeValue = product.sku || String(product._id);
+    product.barcodeFormat = 'CODE128';
+    changed = true;
+  }
+  if (changed) await product.save();
+  res.json(product);
+});
+app.post('/api/products', requireAuth, async (req, res) => {
+  const payload = { ...req.body };
+  if (payload.price !== undefined) payload.price = Number(payload.price) || 0;
+  if (payload.sku !== undefined) payload.sku = String(payload.sku).trim();
+  const created = await Product.create(payload);
+  if (!created.sku) {
+    created.sku = String(created._id);
+  }
+  created.barcodeValue = created.sku;
+  created.barcodeFormat = 'CODE128';
+  await created.save();
+  res.json(created);
+});
+app.put('/api/products/:id', requireAuth, async (req, res) => {
+  const updates = { ...req.body };
+  if (updates.price !== undefined) updates.price = Number(updates.price) || 0;
+  if (updates.sku !== undefined) updates.sku = String(updates.sku).trim();
+  if (updates.sku) {
+    updates.barcodeValue = updates.sku;
+    updates.barcodeFormat = 'CODE128';
+  }
+  const updated = await Product.findByIdAndUpdate(req.params.id, updates, { new: true });
+  res.json(updated);
+});
 app.delete('/api/products/:id', requireAuth, async (req, res) => {
   await Product.findByIdAndDelete(req.params.id);
   res.json({ success: true });
