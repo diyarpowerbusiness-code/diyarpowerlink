@@ -6,6 +6,8 @@ import { API_BASE } from '../api';
 export const Contact = () => {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
   const [status, setStatus] = useState('');
+  const [reviewForm, setReviewForm] = useState({ name: '', email: '', rating: '5', review: '' });
+  const [reviewStatus, setReviewStatus] = useState('');
   const [settings, setSettings] = useState<any>({});
 
   useEffect(() => {
@@ -39,6 +41,28 @@ export const Contact = () => {
       setForm({ name: '', email: '', phone: '', subject: '', message: '' });
     } catch {
       setStatus('Failed to send. Please try again.');
+    }
+  };
+
+  const submitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setReviewStatus('Submitting...');
+    try {
+      const res = await fetch(`${API_BASE}/api/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: reviewForm.name,
+          email: reviewForm.email,
+          rating: Number(reviewForm.rating),
+          review: reviewForm.review
+        })
+      });
+      if (!res.ok) throw new Error('Failed');
+      setReviewStatus('Thanks for your feedback!');
+      setReviewForm({ name: '', email: '', rating: '5', review: '' });
+    } catch {
+      setReviewStatus('Failed to submit. Please try again.');
     }
   };
 
@@ -234,6 +258,69 @@ export const Contact = () => {
                   >
                     Send Message
                     <Send className="ml-2" size={20} />
+                  </button>
+                </form>
+              </div>
+
+              <div className="bg-white p-10 rounded-3xl shadow-sm border border-slate-100 mt-10">
+                <h3 className="text-2xl font-display font-bold text-primary mb-4">Customer Feedback</h3>
+                <p className="text-slate-600 text-sm mb-8">Share your experience with us. We read every review.</p>
+                <form className="space-y-6" onSubmit={submitReview}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Your Name</label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        placeholder="Your full name"
+                        value={reviewForm.name}
+                        onChange={(e) => setReviewForm({ ...reviewForm, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+                      <input
+                        type="email"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        placeholder="you@example.com"
+                        value={reviewForm.email}
+                        onChange={(e) => setReviewForm({ ...reviewForm, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Rating</label>
+                    <select
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white"
+                      value={reviewForm.rating}
+                      onChange={(e) => setReviewForm({ ...reviewForm, rating: e.target.value })}
+                    >
+                      <option value="5">5 - Excellent</option>
+                      <option value="4">4 - Good</option>
+                      <option value="3">3 - Average</option>
+                      <option value="2">2 - Fair</option>
+                      <option value="1">1 - Poor</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Your Review</label>
+                    <textarea
+                      rows={5}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                      placeholder="Tell us what you liked or what we can improve."
+                      value={reviewForm.review}
+                      onChange={(e) => setReviewForm({ ...reviewForm, review: e.target.value })}
+                      required
+                    ></textarea>
+                  </div>
+                  {reviewStatus && <p className="text-sm text-slate-600">{reviewStatus}</p>}
+                  <button
+                    type="submit"
+                    className="w-full md:w-auto bg-primary text-white px-10 py-4 rounded-full font-bold flex items-center justify-center hover:bg-slate-800 transition-all shadow-lg"
+                  >
+                    Submit Review
                   </button>
                 </form>
               </div>

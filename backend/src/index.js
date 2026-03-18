@@ -20,6 +20,7 @@ import { Media } from './models/Media.js';
 import { Settings } from './models/Settings.js';
 import { Category } from './models/Category.js';
 import { AdminUser } from './models/AdminUser.js';
+import { Review } from './models/Review.js';
 import { defaultCategories, defaultBusinessAreas, defaultServices, defaultPartners, defaultProducts } from './seed/defaults.js';
 import { defaultSettings } from './seed/defaultSettings.js';
 
@@ -839,6 +840,14 @@ app.delete('/api/messages/:id', requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// Reviews
+app.get('/api/reviews', requireAuth, async (_req, res) => res.json(await Review.find().sort({ createdAt: -1 })));
+app.patch('/api/reviews/:id', requireAuth, async (req, res) => res.json(await Review.findByIdAndUpdate(req.params.id, req.body, { new: true })));
+app.delete('/api/reviews/:id', requireAuth, async (req, res) => {
+  await Review.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+
 // Admin Users
 app.get('/api/admin-users', requireAuth, async (_req, res) => {
   const users = await AdminUser.find().sort({ createdAt: -1 }).select('-passwordHash');
@@ -896,6 +905,56 @@ app.post('/api/messages', async (req, res) => {
         to: recipient,
         replyTo: email,
         subject: `[Diyar Power Link] ${subject}`,
+        text: lines.join('\n')
+      })
+      .catch((err) => console.error('Email send failed', err));
+  }
+
+  res.json({
+    ...saved.toObject?.(),
+    _id: saved._id,
+    emailSent: Boolean(mailer && recipient),
+    recipient: recipient || ''
+  });
+});
+
+// Public review form
+app.post('/api/reviews', async (req, res) => {
+  const { name, email, rating, review } = req.body || {};
+  const parsedRating = Number(rating);
+  if (!name || !email || !review) {
+    return res.status(400).json({ error: 'Name, email, and review are required' });
+  }
+  if (!Number.isFinite(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+    return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+  }
+
+  const saved = await Review.create({
+    name,
+    email,
+    rating: parsedRating,
+    review
+  });
+
+  const settings = await Settings.findOne();
+  const recipient = settings?.contactRecipient || CONTACT_TO;
+
+  if (mailer && recipient) {
+    const lines = [
+      `Name: ${name}`,
+      `Email: ${email}`,
+      `Rating: ${parsedRating}`,
+      '',
+      'Review:',
+      review
+    ];
+
+    mailer
+      .sendMail({
+        from: SMTP_FROM,
+        to: recipient,
+        replyTo: email,
+        subject: `[Diyar Power Link] New Customer Review`,
         text: lines.join('\n')
       })
       .catch((err) => console.error('Email send failed', err));
