@@ -887,9 +887,11 @@ app.post('/api/messages', async (req, res) => {
   const recipient = settings?.contactRecipient || CONTACT_TO;
 
   if (mailer && recipient) {
+    const timestamp = new Date().toISOString();
     const subject = req.body.subject || 'New Contact Form Submission';
     const phone = req.body.phone || 'N/A';
     const lines = [
+      `Submitted: ${timestamp}`,
       `Name: ${name}`,
       `Email: ${email}`,
       `Phone: ${phone}`,
@@ -904,7 +906,7 @@ app.post('/api/messages', async (req, res) => {
         from: SMTP_FROM,
         to: recipient,
         replyTo: email,
-        subject: `[Diyar Power Link] ${subject}`,
+        subject: `[Diyar Power Link] ${subject} (${timestamp})`,
         text: lines.join('\n')
       })
       .catch((err) => console.error('Email send failed', err));
@@ -940,7 +942,9 @@ app.post('/api/reviews', async (req, res) => {
   const recipient = settings?.contactRecipient || CONTACT_TO;
 
   if (mailer && recipient) {
+    const timestamp = new Date().toISOString();
     const lines = [
+      `Submitted: ${timestamp}`,
       `Name: ${name}`,
       `Email: ${email}`,
       `Rating: ${parsedRating}`,
@@ -954,7 +958,7 @@ app.post('/api/reviews', async (req, res) => {
         from: SMTP_FROM,
         to: recipient,
         replyTo: email,
-        subject: `[Diyar Power Link] New Customer Review`,
+        subject: `[Diyar Power Link] New Customer Review (${timestamp})`,
         text: lines.join('\n')
       })
       .catch((err) => console.error('Email send failed', err));
