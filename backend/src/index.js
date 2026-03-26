@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import multer from 'multer';
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { v2 as cloudinary } from 'cloudinary';
 import path from 'path';
 import fs from 'fs/promises';
@@ -124,6 +125,9 @@ const SMTP_FROM = process.env.SMTP_FROM || '';
 const CONTACT_TO = process.env.CONTACT_TO || '';
 const SMTP_SECURE = (process.env.SMTP_SECURE || '').toLowerCase() === 'true';
 
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+const RESEND_FROM = process.env.RESEND_FROM || '';
+
 const canSendEmail = Boolean(SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && SMTP_FROM);
 const mailer = canSendEmail
   ? nodemailer.createTransport({
@@ -133,6 +137,8 @@ const mailer = canSendEmail
       auth: { user: SMTP_USER, pass: SMTP_PASS }
     })
   : null;
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+const canSendResend = Boolean(resend && RESEND_FROM);
 
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || '';
 const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || '';
@@ -886,7 +892,32 @@ app.post('/api/messages', async (req, res) => {
   const settings = await Settings.findOne();
   const recipient = settings?.contactRecipient || CONTACT_TO;
 
-  if (mailer && recipient) {
+  if (canSendResend && recipient) {
+    const timestamp = new Date().toISOString();
+    const subject = req.body.subject || 'New Contact Form Submission';
+    const phone = req.body.phone || 'N/A';
+    const lines = [
+      `Submitted: ${timestamp}`,
+      `Name: ${name}`,
+      `Email: ${email}`,
+      `Phone: ${phone}`,
+      `Subject: ${subject}`,
+      '',
+      'Message:',
+      req.body.message || ''
+    ];
+
+    resend
+      .emails
+      .send({
+        from: RESEND_FROM,
+        to: recipient,
+        replyTo: email,
+        subject: `[Diyar Power Link] ${subject} (${timestamp})`,
+        text: lines.join('\n')
+      })
+      .catch((err) => console.error('Email send failed', err));
+  } else if (mailer && recipient) {
     const timestamp = new Date().toISOString();
     const subject = req.body.subject || 'New Contact Form Submission';
     const phone = req.body.phone || 'N/A';
@@ -915,7 +946,7 @@ app.post('/api/messages', async (req, res) => {
   res.json({
     ...saved.toObject?.(),
     _id: saved._id,
-    emailSent: Boolean(mailer && recipient),
+    emailSent: Boolean((canSendResend || mailer) && recipient),
     recipient: recipient || ''
   });
 });
@@ -941,7 +972,29 @@ app.post('/api/reviews', async (req, res) => {
   const settings = await Settings.findOne();
   const recipient = settings?.contactRecipient || CONTACT_TO;
 
-  if (mailer && recipient) {
+  if (canSendResend && recipient) {
+    const timestamp = new Date().toISOString();
+    const lines = [
+      `Submitted: ${timestamp}`,
+      `Name: ${name}`,
+      `Email: ${email}`,
+      `Rating: ${parsedRating}`,
+      '',
+      'Review:',
+      review
+    ];
+
+    resend
+      .emails
+      .send({
+        from: RESEND_FROM,
+        to: recipient,
+        replyTo: email,
+        subject: `[Diyar Power Link] New Customer Review (${timestamp})`,
+        text: lines.join('\n')
+      })
+      .catch((err) => console.error('Email send failed', err));
+  } else if (mailer && recipient) {
     const timestamp = new Date().toISOString();
     const lines = [
       `Submitted: ${timestamp}`,
@@ -967,7 +1020,7 @@ app.post('/api/reviews', async (req, res) => {
   res.json({
     ...saved.toObject?.(),
     _id: saved._id,
-    emailSent: Boolean(mailer && recipient),
+    emailSent: Boolean((canSendResend || mailer) && recipient),
     recipient: recipient || ''
   });
 });
