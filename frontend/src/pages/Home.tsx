@@ -80,7 +80,6 @@ export const Home = () => {
 
     return groups.filter((group) => group.items.length > 0);
   }, []);
-  const featuredCustomers = customerNames.slice(0, 8);
 
   const defaultServices = [
     { title: 'IT Consultancy', description: 'Strategic guidance to align technology with business objectives.', icon: 'Lightbulb' },
@@ -120,7 +119,6 @@ export const Home = () => {
   const [businessAreas, setBusinessAreas] = useState<any[]>(defaultBusinessAreas);
   const [partners, setPartners] = useState<any[]>(PARTNERS);
   const [settings, setSettings] = useState<any>({});
-  const [showAllCustomers, setShowAllCustomers] = useState(false);
   const partnerFallbackMap = React.useMemo(() => {
     const map: Record<string, string> = {};
     PARTNERS.forEach((p) => {
@@ -434,82 +432,76 @@ export const Home = () => {
       </section>
 
       {/* Customers */}
-      <section className="py-20 bg-slate-50 border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <SectionHeader
-              title="Our Customers"
-              subtitle="Trusted by a wide range of retail, healthcare, food, and business clients."
-            />
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="rounded-2xl bg-white border border-slate-200 shadow-sm px-6 py-5">
-                <p className="text-3xl font-bold text-blue-700">{customerNames.length}+</p>
-                <p className="text-sm text-slate-600 mt-1">Customers served</p>
-              </div>
-              <div className="rounded-2xl bg-white border border-slate-200 shadow-sm px-6 py-5">
-                <p className="text-3xl font-bold text-blue-700">{customerGroups.length}</p>
-                <p className="text-sm text-slate-600 mt-1">Business groups</p>
-              </div>
-              <div className="rounded-2xl bg-white border border-slate-200 shadow-sm px-6 py-5">
-                <p className="text-3xl font-bold text-blue-700">24/7</p>
-                <p className="text-sm text-slate-600 mt-1">Support approach</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10 rounded-3xl border border-slate-200 bg-white shadow-sm p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-              <div>
-                <h3 className="text-xl font-bold text-slate-900">Featured Customers</h3>
-                <p className="text-sm text-slate-500">A quick snapshot of a few customer names.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowAllCustomers((value) => !value)}
-                className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
-              >
-                {showAllCustomers ? 'Hide full list' : 'View all customers'}
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {featuredCustomers.map((name) => (
-                <span
-                  key={name}
-                  className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700"
-                >
-                  {name}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {showAllCustomers && (
-            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {customerGroups.map((group) => (
-                <div key={group.title} className="rounded-3xl border border-slate-200 bg-white shadow-sm p-6">
-                  <div className="flex items-center justify-between gap-4 mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900">{group.title}</h3>
-                      <p className="text-sm text-slate-500">{group.items.length} customers</p>
-                    </div>
-                    <span className="inline-flex items-center rounded-full bg-blue-600/10 px-3 py-1 text-xs font-semibold text-blue-700">
-                      Trusted
-                    </span>
+      <section className="relative py-24 overflow-hidden border-t border-slate-100">
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-slate-50" />
+        <div className="absolute -top-24 right-0 h-72 w-72 rounded-full bg-blue-400/10 blur-3xl" />
+        <div className="absolute -bottom-20 left-0 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-10 items-start">
+            <div className="lg:sticky lg:top-28">
+              <span className="inline-flex items-center rounded-full bg-blue-600/10 px-4 py-1.5 text-sm font-semibold text-blue-700 mb-4">
+                Customer Network
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 leading-tight">
+                Trusted by businesses across retail, healthcare, food, and industry.
+              </h2>
+              <p className="mt-4 text-slate-600 leading-relaxed">
+                A growing customer base that depends on us for reliable supply, responsive support, and long-term partnership.
+              </p>
+              <div className="mt-8 rounded-3xl bg-slate-900 text-white p-8 shadow-2xl shadow-slate-900/10">
+                <p className="text-5xl font-bold tracking-tight">{customerNames.length}+ </p>
+                <p className="mt-2 text-sm uppercase tracking-[0.24em] text-slate-400">Customers served</p>
+                <div className="mt-6 space-y-3 text-sm text-slate-200">
+                  <div className="flex items-center gap-3">
+                    <span className="h-2 w-2 rounded-full bg-blue-400" />
+                    Retail and supermarket supply
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {group.items.map((name) => (
-                      <span
-                        key={name}
-                        className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 hover:border-blue-200 hover:bg-blue-50 transition-colors"
-                      >
-                        {name}
-                      </span>
-                    ))}
+                  <div className="flex items-center gap-3">
+                    <span className="h-2 w-2 rounded-full bg-cyan-400" />
+                    Healthcare and hospital consumables
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                    Food, bakery, and general business
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
-          )}
+
+            <div className="space-y-5">
+              {customerGroups.map((group, idx) => {
+                const accent =
+                  idx === 0 ? 'from-blue-50 to-white border-blue-100' :
+                  idx === 1 ? 'from-cyan-50 to-white border-cyan-100' :
+                  idx === 2 ? 'from-amber-50 to-white border-amber-100' :
+                  'from-slate-50 to-white border-slate-200';
+
+                return (
+                  <div key={group.title} className={`rounded-3xl border bg-gradient-to-br ${accent} p-6 shadow-sm`}>
+                    <div className="flex items-center justify-between gap-4 mb-4">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-900">{group.title}</h3>
+                        <p className="text-sm text-slate-500">{group.items.length} customer{group.items.length === 1 ? '' : 's'}</p>
+                      </div>
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                        Trusted
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {group.items.map((name) => (
+                        <span
+                          key={name}
+                          className="inline-flex items-center rounded-full border border-white/70 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm"
+                        >
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </section>
     </div>
