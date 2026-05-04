@@ -50,6 +50,38 @@ export const Home = () => {
     'Industrial Sector'
   ];
 
+  const customerGroups = React.useMemo(() => {
+    const groups = [
+      { title: 'Retail & Supermarkets', items: [] as string[] },
+      { title: 'Healthcare', items: [] as string[] },
+      { title: 'Food & Bakery', items: [] as string[] },
+      { title: 'General Business', items: [] as string[] }
+    ];
+
+    const getGroupIndex = (name: string) => {
+      const normalized = name.toLowerCase();
+      if (normalized.includes('hospital') || normalized.includes('care') || normalized.includes('kamineni')) return 1;
+      if (normalized.includes('bakery') || normalized.includes('cake')) return 2;
+      if (
+        normalized.includes('mart') ||
+        normalized.includes('market') ||
+        normalized.includes('supermarket') ||
+        normalized.includes('stores') ||
+        normalized.includes('mart') ||
+        normalized.includes('reliance smart') ||
+        normalized.includes('retail')
+      ) return 0;
+      return 3;
+    };
+
+    customerNames.forEach((name) => {
+      groups[getGroupIndex(name)].items.push(name);
+    });
+
+    return groups.filter((group) => group.items.length > 0);
+  }, []);
+  const featuredCustomers = customerNames.slice(0, 8);
+
   const defaultServices = [
     { title: 'IT Consultancy', description: 'Strategic guidance to align technology with business objectives.', icon: 'Lightbulb' },
     { title: 'Hardware Installation', description: 'Professional setup for desktops, servers, and peripherals.', icon: 'Wrench' },
@@ -88,6 +120,7 @@ export const Home = () => {
   const [businessAreas, setBusinessAreas] = useState<any[]>(defaultBusinessAreas);
   const [partners, setPartners] = useState<any[]>(PARTNERS);
   const [settings, setSettings] = useState<any>({});
+  const [showAllCustomers, setShowAllCustomers] = useState(false);
   const partnerFallbackMap = React.useMemo(() => {
     const map: Record<string, string> = {};
     PARTNERS.forEach((p) => {
@@ -403,35 +436,79 @@ export const Home = () => {
       {/* Customers */}
       <section className="py-20 bg-slate-50 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title="Our Customers"
-            subtitle="A selection of retail, hospitality, healthcare, and industrial businesses that trust us."
-          />
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {customerNames.map((name) => {
-              const initials = name
-                .split(' ')
-                .filter(Boolean)
-                .slice(0, 2)
-                .map((part) => part[0])
-                .join('')
-                .toUpperCase();
+          <div className="max-w-3xl mx-auto text-center">
+            <SectionHeader
+              title="Our Customers"
+              subtitle="Trusted by a wide range of retail, healthcare, food, and business clients."
+            />
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="rounded-2xl bg-white border border-slate-200 shadow-sm px-6 py-5">
+                <p className="text-3xl font-bold text-blue-700">{customerNames.length}+</p>
+                <p className="text-sm text-slate-600 mt-1">Customers served</p>
+              </div>
+              <div className="rounded-2xl bg-white border border-slate-200 shadow-sm px-6 py-5">
+                <p className="text-3xl font-bold text-blue-700">{customerGroups.length}</p>
+                <p className="text-sm text-slate-600 mt-1">Business groups</p>
+              </div>
+              <div className="rounded-2xl bg-white border border-slate-200 shadow-sm px-6 py-5">
+                <p className="text-3xl font-bold text-blue-700">24/7</p>
+                <p className="text-sm text-slate-600 mt-1">Support approach</p>
+              </div>
+            </div>
+          </div>
 
-              return (
-                <div
+          <div className="mt-10 rounded-3xl border border-slate-200 bg-white shadow-sm p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">Featured Customers</h3>
+                <p className="text-sm text-slate-500">A quick snapshot of a few customer names.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAllCustomers((value) => !value)}
+                className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+              >
+                {showAllCustomers ? 'Hide full list' : 'View all customers'}
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {featuredCustomers.map((name) => (
+                <span
                   key={name}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex items-center gap-4"
+                  className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700"
                 >
-                  <div className="h-12 w-12 rounded-xl bg-blue-600/10 text-blue-700 font-bold flex items-center justify-center flex-shrink-0">
-                    {initials}
+                  {name}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {showAllCustomers && (
+            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {customerGroups.map((group) => (
+                <div key={group.title} className="rounded-3xl border border-slate-200 bg-white shadow-sm p-6">
+                  <div className="flex items-center justify-between gap-4 mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900">{group.title}</h3>
+                      <p className="text-sm text-slate-500">{group.items.length} customers</p>
+                    </div>
+                    <span className="inline-flex items-center rounded-full bg-blue-600/10 px-3 py-1 text-xs font-semibold text-blue-700">
+                      Trusted
+                    </span>
                   </div>
-                  <div>
-                    <p className="font-semibold text-slate-900 leading-snug">{name}</p>
-                    <p className="text-xs text-slate-500 mt-1">Trusted customer</p>
+                  <div className="flex flex-wrap gap-2">
+                    {group.items.map((name) => (
+                      <span
+                        key={name}
+                        className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 hover:border-blue-200 hover:bg-blue-50 transition-colors"
+                      >
+                        {name}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </div>
       </section>
