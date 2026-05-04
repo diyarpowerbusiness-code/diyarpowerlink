@@ -52,31 +52,56 @@ export const Home = () => {
 
   const customerGroups = React.useMemo(() => {
     const groups = [
-      { title: 'Retail & Supermarkets', items: [] as string[] },
-      { title: 'Healthcare', items: [] as string[] },
-      { title: 'Food & Bakery', items: [] as string[] },
-      { title: 'General Business', items: [] as string[] }
+      { title: 'Retail Chains & Supermarkets', items: [] as string[] },
+      { title: 'Local Stores & Marts', items: [] as string[] },
+      { title: 'Collections & Shops', items: [] as string[] },
+      { title: 'Hospitals', items: [] as string[] },
+      { title: 'Others', items: [] as string[] }
     ];
 
-    const getGroupIndex = (name: string) => {
+    const addToGroup = (name: string) => {
       const normalized = name.toLowerCase();
-      if (normalized.includes('hospital') || normalized.includes('care') || normalized.includes('kamineni')) return 1;
-      if (normalized.includes('bakery') || normalized.includes('cake')) return 2;
+      if (
+        normalized.includes('dmart') ||
+        normalized.includes('reliance smart') ||
+        normalized.includes('spar') ||
+        normalized.includes('vijetha super market') ||
+        normalized.includes('more supermarket') ||
+        normalized.includes('national mart') ||
+        normalized.includes('ratnadeep retail') ||
+        normalized.includes('redrose mart') ||
+        normalized.includes('everyday supermarket')
+      ) return groups[0].items.push(name);
+
       if (
         normalized.includes('mart') ||
         normalized.includes('market') ||
         normalized.includes('supermarket') ||
-        normalized.includes('stores') ||
-        normalized.includes('mart') ||
-        normalized.includes('reliance smart') ||
-        normalized.includes('retail')
-      ) return 0;
-      return 3;
+        normalized.includes('stores')
+      ) return groups[1].items.push(name);
+
+      if (
+        normalized.includes('collections') ||
+        normalized.includes('collection') ||
+        normalized.includes('bakery') ||
+        normalized.includes('cake bank') ||
+        normalized.includes('bakery and store') ||
+        normalized.includes('indian bakery')
+      ) return groups[2].items.push(name);
+
+      if (
+        normalized.includes('hospital') ||
+        normalized.includes('hopsital') ||
+        normalized.includes('care') ||
+        normalized.includes('kameneni') ||
+        normalized.includes('kamineni') ||
+        normalized.includes('svs')
+      ) return groups[3].items.push(name);
+
+      groups[4].items.push(name);
     };
 
-    customerNames.forEach((name) => {
-      groups[getGroupIndex(name)].items.push(name);
-    });
+    customerNames.forEach(addToGroup);
 
     return groups.filter((group) => group.items.length > 0);
   }, []);
@@ -119,6 +144,7 @@ export const Home = () => {
   const [businessAreas, setBusinessAreas] = useState<any[]>(defaultBusinessAreas);
   const [partners, setPartners] = useState<any[]>(PARTNERS);
   const [settings, setSettings] = useState<any>({});
+  const [showAllClients, setShowAllClients] = useState(false);
   const partnerFallbackMap = React.useMemo(() => {
     const map: Record<string, string> = {};
     PARTNERS.forEach((p) => {
@@ -437,70 +463,97 @@ export const Home = () => {
         <div className="absolute -top-24 right-0 h-72 w-72 rounded-full bg-blue-400/10 blur-3xl" />
         <div className="absolute -bottom-20 left-0 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-10 items-start">
-            <div className="lg:sticky lg:top-28">
-              <span className="inline-flex items-center rounded-full bg-blue-600/10 px-4 py-1.5 text-sm font-semibold text-blue-700 mb-4">
-                Customer Network
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 leading-tight">
-                Trusted by businesses across retail, healthcare, food, and industry.
-              </h2>
-              <p className="mt-4 text-slate-600 leading-relaxed">
-                A growing customer base that depends on us for reliable supply, responsive support, and long-term partnership.
-              </p>
-              <div className="mt-8 rounded-3xl bg-slate-900 text-white p-8 shadow-2xl shadow-slate-900/10">
-                <p className="text-5xl font-bold tracking-tight">{customerNames.length}+ </p>
-                <p className="mt-2 text-sm uppercase tracking-[0.24em] text-slate-400">Customers served</p>
-                <div className="mt-6 space-y-3 text-sm text-slate-200">
-                  <div className="flex items-center gap-3">
-                    <span className="h-2 w-2 rounded-full bg-blue-400" />
-                    Retail and supermarket supply
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="h-2 w-2 rounded-full bg-cyan-400" />
-                    Healthcare and hospital consumables
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                    Food, bakery, and general business
-                  </div>
-                </div>
+          <div className="max-w-4xl mx-auto text-center">
+            <span className="inline-flex items-center rounded-full bg-blue-600/10 px-4 py-1.5 text-sm font-semibold text-blue-700 mb-4">
+              Our Clients
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 leading-tight">
+              Trusted by leading clients across retail, healthcare, and industry.
+            </h2>
+            <p className="mt-4 text-slate-600 leading-relaxed">
+              A clean, structured view of the businesses that trust us, grouped by category for quick scanning on desktop and mobile.
+            </p>
+          </div>
+
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm min-w-[160px] text-center">
+              <p className="text-3xl font-bold text-slate-900">{customerNames.length}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 mt-1">Clients listed</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm min-w-[160px] text-center">
+              <p className="text-3xl font-bold text-slate-900">{customerGroups.length}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 mt-1">Categories</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm min-w-[160px] text-center">
+              <p className="text-3xl font-bold text-slate-900">24/7</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 mt-1">Support mindset</p>
+            </div>
+          </div>
+
+          <div className="mt-10 rounded-3xl border border-slate-200 bg-white shadow-sm p-6 sm:p-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-left">
+                <h3 className="text-xl font-bold text-slate-900">Trusted Clients</h3>
+                <p className="text-sm text-slate-500">Highlighted names and grouped categories, without clutter.</p>
               </div>
+              <button
+                type="button"
+                onClick={() => setShowAllClients((value) => !value)}
+                className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+              >
+                {showAllClients ? 'Show Less' : 'View More'}
+              </button>
             </div>
 
-            <div className="space-y-5">
-              {customerGroups.map((group, idx) => {
-                const accent =
-                  idx === 0 ? 'from-blue-50 to-white border-blue-100' :
-                  idx === 1 ? 'from-cyan-50 to-white border-cyan-100' :
-                  idx === 2 ? 'from-amber-50 to-white border-amber-100' :
-                  'from-slate-50 to-white border-slate-200';
-
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {customerNames.slice(0, showAllClients ? customerNames.length : 8).map((name) => {
+                const prominent = /dmart|reliance smart|spar|national mart|more supermarket|vijetha super market/i.test(name);
                 return (
-                  <div key={group.title} className={`rounded-3xl border bg-gradient-to-br ${accent} p-6 shadow-sm`}>
-                    <div className="flex items-center justify-between gap-4 mb-4">
-                      <div>
-                        <h3 className="text-lg sm:text-xl font-bold text-slate-900">{group.title}</h3>
-                        <p className="text-sm text-slate-500">{group.items.length} customer{group.items.length === 1 ? '' : 's'}</p>
-                      </div>
-                      <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">
-                        Trusted
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {group.items.map((name) => (
-                        <span
-                          key={name}
-                          className="inline-flex items-center rounded-full border border-white/70 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm"
-                        >
-                          {name}
-                        </span>
-                      ))}
-                    </div>
+                  <div
+                    key={name}
+                    className={`rounded-2xl border bg-slate-50 px-4 py-4 text-center shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${
+                      prominent ? 'border-blue-200 bg-blue-50/70 col-span-2 sm:col-span-1 lg:col-span-1' : 'border-slate-200'
+                    }`}
+                  >
+                    <p className={`text-sm leading-snug text-slate-800 ${prominent ? 'font-bold text-[15px]' : 'font-medium'}`}>
+                      {name}
+                    </p>
                   </div>
                 );
               })}
             </div>
+
+            {showAllClients && (
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {customerGroups.map((group) => (
+                  <div key={group.title} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="flex items-center justify-between gap-3 mb-4">
+                      <div>
+                        <h4 className="text-base font-bold text-slate-900">{group.title}</h4>
+                        <p className="text-xs uppercase tracking-[0.18em] text-slate-500 mt-1">{group.items.length} clients</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {group.items.map((name) => {
+                        const prominent = /dmart|reliance smart|spar|national mart|more supermarket|vijetha super market/i.test(name);
+                        return (
+                          <span
+                            key={name}
+                            className={`inline-flex items-center rounded-full border px-3 py-2 text-sm transition-colors ${
+                              prominent
+                                ? 'border-blue-300 bg-blue-600 text-white font-semibold shadow-sm'
+                                : 'border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50'
+                            }`}
+                          >
+                            {name}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
