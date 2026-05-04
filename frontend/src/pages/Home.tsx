@@ -475,26 +475,11 @@ export const Home = () => {
             </p>
           </div>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm min-w-[160px] text-center">
-              <p className="text-3xl font-bold text-slate-900">{customerNames.length}</p>
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 mt-1">Clients listed</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm min-w-[160px] text-center">
-              <p className="text-3xl font-bold text-slate-900">{customerGroups.length}</p>
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 mt-1">Categories</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm min-w-[160px] text-center">
-              <p className="text-3xl font-bold text-slate-900">24/7</p>
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500 mt-1">Support mindset</p>
-            </div>
-          </div>
-
           <div className="mt-10 rounded-3xl border border-slate-200 bg-white shadow-sm p-6 sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-left">
                 <h3 className="text-xl font-bold text-slate-900">Trusted Clients</h3>
-                <p className="text-sm text-slate-500">Highlighted names and grouped categories, without clutter.</p>
+                <p className="text-sm text-slate-500">A compact view by category. Expand to see the full list.</p>
               </div>
               <button
                 type="button"
@@ -505,27 +490,12 @@ export const Home = () => {
               </button>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {customerNames.slice(0, showAllClients ? customerNames.length : 8).map((name) => {
-                const prominent = /dmart|reliance smart|spar|national mart|more supermarket|vijetha super market/i.test(name);
-                return (
-                  <div
-                    key={name}
-                    className={`rounded-2xl border bg-slate-50 px-4 py-4 text-center shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${
-                      prominent ? 'border-blue-200 bg-blue-50/70 col-span-2 sm:col-span-1 lg:col-span-1' : 'border-slate-200'
-                    }`}
-                  >
-                    <p className={`text-sm leading-snug text-slate-800 ${prominent ? 'font-bold text-[15px]' : 'font-medium'}`}>
-                      {name}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {customerGroups.map((group) => {
+                const visibleItems = showAllClients ? group.items : group.items.slice(0, 3);
+                const remaining = group.items.length - visibleItems.length;
 
-            {showAllClients && (
-              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {customerGroups.map((group) => (
+                return (
                   <div key={group.title} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
                     <div className="flex items-center justify-between gap-3 mb-4">
                       <div>
@@ -534,14 +504,14 @@ export const Home = () => {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {group.items.map((name) => {
+                      {visibleItems.map((name) => {
                         const prominent = /dmart|reliance smart|spar|national mart|more supermarket|vijetha super market/i.test(name);
                         return (
                           <span
                             key={name}
                             className={`inline-flex items-center rounded-full border px-3 py-2 text-sm transition-colors ${
                               prominent
-                                ? 'border-blue-300 bg-blue-600 text-white font-semibold shadow-sm'
+                                ? 'border-slate-300 bg-white text-slate-900 font-semibold shadow-sm'
                                 : 'border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50'
                             }`}
                           >
@@ -549,11 +519,16 @@ export const Home = () => {
                           </span>
                         );
                       })}
+                      {!showAllClients && remaining > 0 && (
+                        <span className="inline-flex items-center rounded-full border border-dashed border-slate-300 bg-white px-3 py-2 text-sm text-slate-500">
+                          +{remaining} more
+                        </span>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
