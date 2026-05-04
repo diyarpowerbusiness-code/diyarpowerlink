@@ -144,7 +144,7 @@ export const Home = () => {
   const [businessAreas, setBusinessAreas] = useState<any[]>(defaultBusinessAreas);
   const [partners, setPartners] = useState<any[]>(PARTNERS);
   const [settings, setSettings] = useState<any>({});
-  const [showAllClients, setShowAllClients] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const partnerFallbackMap = React.useMemo(() => {
     const map: Record<string, string> = {};
     PARTNERS.forEach((p) => {
@@ -479,21 +479,13 @@ export const Home = () => {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-left">
                 <h3 className="text-xl font-semibold text-slate-900">Our Clients</h3>
-                <p className="text-sm text-slate-500">A clean view of our client groups, with a simple expand option.</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowAllClients((value) => !value)}
-                className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-                aria-expanded={showAllClients}
-              >
-                {showAllClients ? 'Show Less' : 'View More'}
-              </button>
             </div>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
               {customerGroups.map((group) => {
-                const visibleItems = showAllClients ? group.items : group.items.slice(0, 4);
+                const isExpanded = Boolean(expandedGroups[group.title]);
+                const visibleItems = isExpanded ? group.items : group.items.slice(0, 4);
                 const remaining = group.items.length - visibleItems.length;
 
                 return (
@@ -513,10 +505,16 @@ export const Home = () => {
                           {name}
                         </span>
                       ))}
-                      {!showAllClients && remaining > 0 && (
-                        <span className="inline-flex items-center rounded-full border border-dashed border-slate-300 bg-white px-3 py-2 text-sm text-slate-500">
+                      {!isExpanded && remaining > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setExpandedGroups((current) => ({ ...current, [group.title]: true }))}
+                          className="inline-flex items-center rounded-full border border-dashed border-slate-300 bg-white px-3 py-2 text-sm text-slate-500 hover:border-slate-400 hover:bg-slate-50 transition-colors"
+                          aria-expanded={isExpanded}
+                          aria-label={`Show ${remaining} more clients in ${group.title}`}
+                        >
                           +{remaining} more
-                        </span>
+                        </button>
                       )}
                     </div>
                   </div>
