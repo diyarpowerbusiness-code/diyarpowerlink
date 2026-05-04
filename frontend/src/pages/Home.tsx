@@ -152,6 +152,14 @@ export const Home = () => {
     });
     return map;
   }, []);
+  const getClientInitials = (name: string) =>
+    name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase();
 
   useEffect(() => {
     fetch(`${API_BASE}/api/services`)
@@ -478,25 +486,32 @@ export const Home = () => {
           <div className="mt-10 rounded-3xl border border-slate-200 bg-white shadow-sm p-6 sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-left">
-                <h3 className="text-xl font-bold text-slate-900">Trusted Clients</h3>
-                <p className="text-sm text-slate-500">A compact view by category. Expand to see the full list.</p>
+                <h3 className="text-xl font-bold text-slate-900">Client Logos</h3>
+                <p className="text-sm text-slate-500">Logo-style badges grouped by category, with a simple expand option.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAllClients((value) => !value)}
                 className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                aria-expanded={showAllClients}
               >
                 {showAllClients ? 'Show Less' : 'View More'}
               </button>
             </div>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {customerGroups.map((group) => {
-                const visibleItems = showAllClients ? group.items : group.items.slice(0, 3);
+              {customerGroups.map((group, idx) => {
+                const visibleItems = showAllClients ? group.items : group.items.slice(0, 4);
                 const remaining = group.items.length - visibleItems.length;
+                const panelClass =
+                  idx === 0 ? 'border-blue-100 bg-gradient-to-br from-blue-50 to-white' :
+                  idx === 1 ? 'border-slate-200 bg-gradient-to-br from-slate-50 to-white' :
+                  idx === 2 ? 'border-amber-100 bg-gradient-to-br from-amber-50 to-white' :
+                  idx === 3 ? 'border-cyan-100 bg-gradient-to-br from-cyan-50 to-white' :
+                  'border-emerald-100 bg-gradient-to-br from-emerald-50 to-white';
 
                 return (
-                  <div key={group.title} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                  <div key={group.title} className={`rounded-3xl border p-5 shadow-sm ${panelClass}`}>
                     <div className="flex items-center justify-between gap-3 mb-4">
                       <div>
                         <h4 className="text-base font-bold text-slate-900">{group.title}</h4>
@@ -509,13 +524,20 @@ export const Home = () => {
                         return (
                           <span
                             key={name}
-                            className={`inline-flex items-center rounded-full border px-3 py-2 text-sm transition-colors ${
+                            className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors ${
                               prominent
                                 ? 'border-slate-300 bg-white text-slate-900 font-semibold shadow-sm'
                                 : 'border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50'
                             }`}
                           >
-                            {name}
+                            <span
+                              className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold ${
+                                prominent ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'
+                              }`}
+                            >
+                              {getClientInitials(name)}
+                            </span>
+                            <span className="whitespace-nowrap">{name}</span>
                           </span>
                         );
                       })}
