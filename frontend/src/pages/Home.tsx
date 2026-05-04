@@ -152,14 +152,6 @@ export const Home = () => {
     });
     return map;
   }, []);
-  const getClientInitials = (name: string) =>
-    name
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0])
-      .join('')
-      .toUpperCase();
 
   useEffect(() => {
     fetch(`${API_BASE}/api/services`)
@@ -472,27 +464,27 @@ export const Home = () => {
         <div className="absolute -bottom-20 left-0 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <span className="inline-flex items-center rounded-full bg-blue-600/10 px-4 py-1.5 text-sm font-semibold text-blue-700 mb-4">
+            <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-medium text-slate-600 mb-4">
               Our Clients
             </span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 leading-tight">
+            <h2 className="text-3xl sm:text-4xl font-semibold text-slate-900 leading-tight">
               Trusted by leading clients across retail, healthcare, and industry.
             </h2>
-            <p className="mt-4 text-slate-600 leading-relaxed">
-              A clean, structured view of the businesses that trust us, grouped by category for quick scanning on desktop and mobile.
+            <p className="mt-4 text-slate-500 leading-relaxed">
+              A clean view of the businesses that trust us, grouped by category for quick scanning on desktop and mobile.
             </p>
           </div>
 
           <div className="mt-10 rounded-3xl border border-slate-200 bg-white shadow-sm p-6 sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-left">
-                <h3 className="text-xl font-bold text-slate-900">Client Logos</h3>
-                <p className="text-sm text-slate-500">Logo-style badges grouped by category, with a simple expand option.</p>
+                <h3 className="text-xl font-semibold text-slate-900">Our Clients</h3>
+                <p className="text-sm text-slate-500">A clean view of our client groups, with a simple expand option.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAllClients((value) => !value)}
-                className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                 aria-expanded={showAllClients}
               >
                 {showAllClients ? 'Show Less' : 'View More'}
@@ -500,18 +492,12 @@ export const Home = () => {
             </div>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {customerGroups.map((group, idx) => {
+              {customerGroups.map((group) => {
                 const visibleItems = showAllClients ? group.items : group.items.slice(0, 4);
                 const remaining = group.items.length - visibleItems.length;
-                const panelClass =
-                  idx === 0 ? 'border-blue-100 bg-gradient-to-br from-blue-50 to-white' :
-                  idx === 1 ? 'border-slate-200 bg-gradient-to-br from-slate-50 to-white' :
-                  idx === 2 ? 'border-amber-100 bg-gradient-to-br from-amber-50 to-white' :
-                  idx === 3 ? 'border-cyan-100 bg-gradient-to-br from-cyan-50 to-white' :
-                  'border-emerald-100 bg-gradient-to-br from-emerald-50 to-white';
 
                 return (
-                  <div key={group.title} className={`rounded-3xl border p-5 shadow-sm ${panelClass}`}>
+                  <div key={group.title} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between gap-3 mb-4">
                       <div>
                         <h4 className="text-base font-bold text-slate-900">{group.title}</h4>
@@ -519,28 +505,14 @@ export const Home = () => {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {visibleItems.map((name) => {
-                        const prominent = /dmart|reliance smart|spar|national mart|more supermarket|vijetha super market/i.test(name);
-                        return (
-                          <span
-                            key={name}
-                            className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors ${
-                              prominent
-                                ? 'border-slate-300 bg-white text-slate-900 font-semibold shadow-sm'
-                                : 'border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50'
-                            }`}
-                          >
-                            <span
-                              className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold ${
-                                prominent ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'
-                              }`}
-                            >
-                              {getClientInitials(name)}
-                            </span>
-                            <span className="whitespace-nowrap">{name}</span>
-                          </span>
-                        );
-                      })}
+                      {visibleItems.map((name) => (
+                        <span
+                          key={name}
+                          className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50"
+                        >
+                          {name}
+                        </span>
+                      ))}
                       {!showAllClients && remaining > 0 && (
                         <span className="inline-flex items-center rounded-full border border-dashed border-slate-300 bg-white px-3 py-2 text-sm text-slate-500">
                           +{remaining} more
