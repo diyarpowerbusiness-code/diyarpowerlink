@@ -8,6 +8,48 @@ import { API_BASE } from '../api';
 import { getCategoryFallbackImage, resolveImageUrl } from '../utils/media';
 
 export const Home = () => {
+  const customerNames = [
+    'Ratnadeep Retail Private Limited',
+    'K. S Private Limited',
+    'Redrose Mart Pvt Ltd',
+    'Vijetha Super Market',
+    'Spar Hypermarket',
+    'National Mart',
+    'DMart',
+    'More Supermarket',
+    'Reliance Smart Superstore',
+    'Hashmi Brothers',
+    'Alis Mart Enterprises',
+    'Everyday Supermarket',
+    'Sonam Stores',
+    'Gayathri Stores',
+    'Maha Collections',
+    'AARADHYA MART',
+    'SHREE AARADHYA MART',
+    'REHAN MART',
+    'USHODAYA MART',
+    'Sri Lakshmi Collections',
+    'Mangalaya Stores',
+    'Karli Brothers',
+    'Ambica Stores',
+    'Raghavendra Super Market',
+    'Venkateshwara Mart',
+    'Shashi Supermarket',
+    'Garuda Vastra Collection',
+    'Modern Cake Bank',
+    'Indian Bakery',
+    'Santosh Bakery and Store',
+    'Mangalaya Collections',
+    'Shree Collections',
+    'Apollo Hospitals',
+    'Yashoda Hospitals',
+    'Care Hospitals',
+    'Kamineni Hospital',
+    'SVS Hospital',
+    'Private Companies',
+    'Industrial Sector'
+  ];
+
   const defaultServices = [
     { title: 'IT Consultancy', description: 'Strategic guidance to align technology with business objectives.', icon: 'Lightbulb' },
     { title: 'Hardware Installation', description: 'Professional setup for desktops, servers, and peripherals.', icon: 'Wrench' },
@@ -354,6 +396,42 @@ export const Home = () => {
                 </a>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Customers */}
+      <section className="py-20 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Our Customers"
+            subtitle="A selection of retail, hospitality, healthcare, and industrial businesses that trust us."
+          />
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {customerNames.map((name) => {
+              const initials = name
+                .split(' ')
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((part) => part[0])
+                .join('')
+                .toUpperCase();
+
+              return (
+                <div
+                  key={name}
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex items-center gap-4"
+                >
+                  <div className="h-12 w-12 rounded-xl bg-blue-600/10 text-blue-700 font-bold flex items-center justify-center flex-shrink-0">
+                    {initials}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-900 leading-snug">{name}</p>
+                    <p className="text-xs text-slate-500 mt-1">Trusted customer</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

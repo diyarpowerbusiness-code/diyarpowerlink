@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import multer from 'multer';
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import { v2 as cloudinary } from 'cloudinary';
 import path from 'path';
 import fs from 'fs/promises';
@@ -20,7 +20,6 @@ import { Media } from './models/Media.js';
 import { Settings } from './models/Settings.js';
 import { Category } from './models/Category.js';
 import { AdminUser } from './models/AdminUser.js';
-import { Review } from './models/Review.js';
 import { defaultCategories, defaultBusinessAreas, defaultServices, defaultPartners, defaultProducts } from './seed/defaults.js';
 import { defaultSettings } from './seed/defaultSettings.js';
 
@@ -116,10 +115,23 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || '';
 const JWT_SECRET = process.env.JWT_SECRET || 'change-this-secret';
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
-const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
-const RESEND_FROM = 'Diyarpowerlink <contact@diyarpowerlink.com>';
-const CONTACT_RECIPIENT = 'diyarpowerbusiness@gmail.com';
+const SMTP_HOST = process.env.SMTP_HOST || '';
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '0', 10);
+const SMTP_USER = process.env.SMTP_USER || '';
+const SMTP_PASS = process.env.SMTP_PASS || '';
+const SMTP_FROM = process.env.SMTP_FROM || '';
+const CONTACT_TO = process.env.CONTACT_TO || '';
+const SMTP_SECURE = (process.env.SMTP_SECURE || '').toLowerCase() === 'true';
+
+const canSendEmail = Boolean(SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && SMTP_FROM);
+const mailer = canSendEmail
+  ? nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_SECURE || SMTP_PORT === 465,
+      auth: { user: SMTP_USER, pass: SMTP_PASS }
+    })
+  : null;
 
 const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || '';
 const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || '';
@@ -827,14 +839,6 @@ app.delete('/api/messages/:id', requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
-// Reviews
-app.get('/api/reviews', requireAuth, async (_req, res) => res.json(await Review.find().sort({ createdAt: -1 })));
-app.patch('/api/reviews/:id', requireAuth, async (req, res) => res.json(await Review.findByIdAndUpdate(req.params.id, req.body, { new: true })));
-app.delete('/api/reviews/:id', requireAuth, async (req, res) => {
-  await Review.findByIdAndDelete(req.params.id);
-  res.json({ success: true });
-});
-
 // Admin Users
 app.get('/api/admin-users', requireAuth, async (_req, res) => {
   const users = await AdminUser.find().sort({ createdAt: -1 }).select('-passwordHash');
@@ -868,76 +872,41 @@ app.delete('/api/admin-users/:id', requireAuth, async (req, res) => {
 app.post('/api/messages', async (req, res) => {
   const { name, email, message } = req.body || {};
   if (!name || !email || !message) return res.status(400).json({ error: 'Name, email, and message are required' });
-  await Message.create(req.body);
+  const saved = await Message.create(req.body);
 
-  if (!resend) return res.status(500).json({ success: false });
+  const settings = await Settings.findOne();
+  const recipient = settings?.contactRecipient || CONTACT_TO;
 
-  try {
-    const subject = 'New Contact Form Submission';
-    const html = `
-      <h2>New Contact Message</h2>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Message:</strong></p>
-      <p>${String(message).replace(/\n/g, '<br/>')}</p>
-    `;
-    await resend.emails.send({
-      from: RESEND_FROM,
-      to: CONTACT_RECIPIENT,
-      replyTo: email,
-      reply_to: email,
-      subject,
-      html
-    });
-    return res.json({ success: true });
-  } catch (err) {
-    console.error('Resend send failed', err);
-    return res.status(500).json({ success: false });
-  }
-});
+  if (mailer && recipient) {
+    const subject = req.body.subject || 'New Contact Form Submission';
+    const phone = req.body.phone || 'N/A';
+    const lines = [
+      `Name: ${name}`,
+      `Email: ${email}`,
+      `Phone: ${phone}`,
+      `Subject: ${subject}`,
+      '',
+      'Message:',
+      req.body.message || ''
+    ];
 
-// Public review form
-app.post('/api/reviews', async (req, res) => {
-  const { name, email, rating, review } = req.body || {};
-  const parsedRating = Number(rating);
-  if (!name || !email || !review) {
-    return res.status(400).json({ error: 'Name, email, and review are required' });
-  }
-  if (!Number.isFinite(parsedRating) || parsedRating < 1 || parsedRating > 5) {
-    return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    mailer
+      .sendMail({
+        from: SMTP_FROM,
+        to: recipient,
+        replyTo: email,
+        subject: `[Diyar Power Link] ${subject}`,
+        text: lines.join('\n')
+      })
+      .catch((err) => console.error('Email send failed', err));
   }
 
-  await Review.create({
-    name,
-    email,
-    rating: parsedRating,
-    review
+  res.json({
+    ...saved.toObject?.(),
+    _id: saved._id,
+    emailSent: Boolean(mailer && recipient),
+    recipient: recipient || ''
   });
-  if (!resend) return res.status(500).json({ success: false });
-
-  try {
-    const subject = 'New Customer Review';
-    const html = `
-      <h2>New Customer Review</h2>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Rating:</strong> ${parsedRating}</p>
-      <p><strong>Review:</strong></p>
-      <p>${String(review).replace(/\n/g, '<br/>')}</p>
-    `;
-    await resend.emails.send({
-      from: RESEND_FROM,
-      to: CONTACT_RECIPIENT,
-      replyTo: email,
-      reply_to: email,
-      subject,
-      html
-    });
-    return res.json({ success: true });
-  } catch (err) {
-    console.error('Resend send failed', err);
-    return res.status(500).json({ success: false });
-  }
 });
 
 // Health
